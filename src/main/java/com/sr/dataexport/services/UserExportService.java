@@ -22,7 +22,7 @@ public class UserExportService {
     private final JobLauncher jobLauncher;
 
     public UserExportService(@Qualifier("singleUserTransactions") Job singleUserExportJob,
-                             @Qualifier("readUsers") Job readUserJob, JobLauncher jobLauncher) {
+                             @Qualifier("readUsers") Job readUserJob, @Qualifier("asyncJobLauncher") JobLauncher jobLauncher) {
         this.singleUserExportJob = singleUserExportJob;
         this.readUserJob = readUserJob;
         this.jobLauncher = jobLauncher;
@@ -66,7 +66,6 @@ public class UserExportService {
                         .addString("outputPath", outputPath + "/" + userId + "_transactions.xml")
                         .addLong("userId", userId)
                         .toJobParameters();
-
                 jobLauncher.run(singleUserExportJob, jobParameters2);
             }
             return ResponseEntity.ok().build();
