@@ -7,21 +7,25 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 @Slf4j(topic = "MainChunkListener")
 public class MainChunkListener implements ChunkListener {
     private int count = 0;
+
     @Override
     public void beforeChunk(ChunkContext chunkContext) {
     }
 
     @Override
     public void afterChunk(ChunkContext chunkContext) {
-        if(count % 25 == 0 && count != 0) {
+
+        if(count % 200 == 0 && count != 0) {
             log.info("Writing: " + chunkContext.getStepContext().getStepName() + " with " + chunkContext.getStepContext().getStepExecution().getWriteCount() +
                     " records" + " for " + chunkContext.getStepContext().getStepExecution().getJobExecution().getJobInstance().getJobName());
         }
-        if(count % 50 == 0 && count != 0) {
+        if(count % 400 == 0 && count != 0) {
             log.info("Reading: " + chunkContext.getStepContext().getStepName() + " with " + chunkContext.getStepContext().getStepExecution().getReadCount() +
                     " records" + " for " + chunkContext.getStepContext().getStepExecution().getJobExecution().getJobInstance().getJobName());
         }
         count++;
+
+        chunkContext.getStepContext().getJobParameters().get("userId");
     }
 
     @Override

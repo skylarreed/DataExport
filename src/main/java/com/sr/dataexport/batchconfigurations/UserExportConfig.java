@@ -86,7 +86,7 @@ public class UserExportConfig {
     @Bean
     public Step userTransactionsStep(){
         return new StepBuilder("userTransactions", jobRepository)
-                .<Transaction, Transaction>chunk(20000, transactionManager)
+                .<Transaction, Transaction>chunk(800, transactionManager)
                 .reader(singleUserTransactionReader)
                 .processor(singleUserTransactionsProcessor)
                 .writer(writer)
@@ -105,7 +105,7 @@ public class UserExportConfig {
     @Bean
     public Step readUserIdStep(){
         return new StepBuilder("readUsers", jobRepository)
-                .<User, User>chunk(20000, transactionManager)
+                .<User, User>chunk(800, transactionManager)
                 .reader(allUsersReader)
                 .processor(readUserProcessor)
                 .writer(chunk -> System.out.println("chunk = " + chunk))
