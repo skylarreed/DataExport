@@ -13,9 +13,9 @@
 //
 //@Component
 //public class TransactionReader {
-//    @Bean
+//    @Bean(name = "allTransactionsReader")
 //    @StepScope
-//    public SynchronizedItemStreamReader<Transaction> synchronizedReader(@Value("#{jobParameters[filePath]}") String filePath) {
+//    public SynchronizedItemStreamReader<Transaction> transactionReader(@Value("#{jobParameters[filePath]}") String filePath) {
 //            FlatFileItemReader<Transaction> itemReader = new FlatFileItemReader<>();
 //            itemReader.setResource(new FileSystemResource(filePath));
 //            itemReader.setLinesToSkip(1);

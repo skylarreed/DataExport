@@ -1,6 +1,8 @@
 package com.sr.dataexport.batchconfigurations;
 
 import com.sr.dataexport.models.Transaction;
+import com.sr.dataexport.models.User;
+import com.sr.dataexport.processors.ReadUserProcessor;
 import com.sr.dataexport.processors.SingleUserTransactionsProcessor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -8,10 +10,13 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
+import org.springframework.batch.item.Chunk;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.support.SynchronizedItemStreamReader;
 import org.springframework.batch.item.support.SynchronizedItemStreamWriter;
 import org.springframework.batch.item.support.builder.SynchronizedItemStreamWriterBuilder;
 import org.springframework.batch.item.xml.StaxEventItemWriter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,13 +41,27 @@ public class UserExportConfig {
 
     private final SimpleAsyncTaskExecutor taskExecutor;
 
-    public UserExportConfig(SynchronizedItemStreamReader<Transaction> reader, SynchronizedItemStreamWriter<Transaction> writer, JobRepository jobRepository, PlatformTransactionManager transactionManager, SingleUserTransactionsProcessor singleUserTransactionsProcessor, SimpleAsyncTaskExecutor taskExecutor) {
+    private final SynchronizedItemStreamReader<User> allUsersReader;
+
+    private final ReadUserProcessor readUserProcessor;
+
+
+
+    public UserExportConfig(@Qualifier("userTransactionsReader") SynchronizedItemStreamReader<Transaction> reader,
+                            SynchronizedItemStreamWriter<Transaction> writer, JobRepository jobRepository,
+                            PlatformTransactionManager transactionManager,
+                            SingleUserTransactionsProcessor singleUserTransactionsProcessor,
+                            SimpleAsyncTaskExecutor taskExecutor, SynchronizedItemStreamReader<User> allUsersReader,
+                            ReadUserProcessor readUserProcessor) {
         this.singleUserTransactionReader = reader;
         this.writer = writer;
         this.jobRepository = jobRepository;
         this.transactionManager = transactionManager;
         this.singleUserTransactionsProcessor = singleUserTransactionsProcessor;
         this.taskExecutor = taskExecutor;
+
+        this.allUsersReader = allUsersReader;
+        this.readUserProcessor = readUserProcessor;
     }
 
     @Bean
@@ -76,5 +95,27 @@ public class UserExportConfig {
                 .start(userTransactionsStep())
                 .build();
     }
+
+    @Bean
+    public Step readUserIdStep(){
+        return new StepBuilder("readUsers", jobRepository)
+                .<User, User>chunk(20000, transactionManager)
+                .reader(allUsersReader)
+                .processor(readUserProcessor)
+                .writer(chunk -> System.out.println("chunk = " + chunk))
+                .taskExecutor(taskExecutor)
+                .build();
+
+    }
+
+    @Bean(name = "readUsers")
+    public Job readUsersJob(){
+        return new JobBuilder("readUsers", jobRepository)
+                .start(readUserIdStep())
+                .build();
+    }
+
+
+
 
 }

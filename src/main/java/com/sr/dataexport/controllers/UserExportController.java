@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 public class UserExportController {
     private final UserExportService userExportService;
 
+
+
     public UserExportController(UserExportService userExportService) {
         this.userExportService = userExportService;
     }
@@ -15,5 +17,10 @@ public class UserExportController {
     @GetMapping("/users/{userId}")
     public ResponseEntity<?> exportSingleUserTransactions(@RequestParam("destination") String outputPath, @PathVariable long userId){
         return userExportService.exportSingleUserTransactions(outputPath, userId);
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<?> exportAllUsersTransactions(@RequestParam("destination") String outputPath){
+        return userExportService.exportAllUsersTransactions(outputPath);
     }
 }

@@ -13,9 +13,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SingleUserTransactionReader {
-    @Bean
+    @Bean(name = "userTransactionsReader")
     @StepScope
-    public SynchronizedItemStreamReader<Transaction> synchronizedReader(@Value("#{jobParameters[filePath]}") String filePath, @Value("#{jobParameters[userId]}") long userId) {
+    public SynchronizedItemStreamReader<Transaction> userTransactionReader(@Value("#{jobParameters[filePath]}") String filePath, @Value("#{jobParameters[userId]}") long userId) {
         FlatFileItemReader<Transaction> itemReader = new FlatFileItemReader<>();
         itemReader.setResource(new FileSystemResource(filePath));
         itemReader.setLinesToSkip(1);
