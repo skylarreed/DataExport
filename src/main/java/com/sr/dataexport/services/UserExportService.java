@@ -60,19 +60,30 @@ public class UserExportService {
 
             HashSet<Long> users = UserTracker.users;
 
+            while(jobExecution.getStatus() != BatchStatus.COMPLETED){
+                Thread.sleep(1000);
+            }
             for (Long userId : users) {
-                JobParameters jobParameters2 = new JobParametersBuilder()
+                JobParameters userJobParams = new JobParametersBuilder()
                         .addString("filePath", "src/main/resources/transactions.csv")
                         .addString("outputPath", outputPath + "/" + userId + "_transactions.xml")
                         .addLong("userId", userId)
                         .toJobParameters();
-                jobLauncher.run(singleUserExportJob, jobParameters2);
+
+                jobLauncher.run(singleUserExportJob, userJobParams);
             }
             return ResponseEntity.ok().build();
 
         } catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException |
                  JobParametersInvalidException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
+
+
+
+
+
 }

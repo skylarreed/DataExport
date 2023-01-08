@@ -1,5 +1,6 @@
 package com.sr.dataexport.batchconfigurations;
 
+import com.sr.dataexport.listeners.MainChunkListener;
 import com.sr.dataexport.models.Transaction;
 import com.sr.dataexport.models.User;
 import com.sr.dataexport.processors.ReadUserProcessor;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.oxm.xstream.XStreamMarshaller;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -88,6 +90,7 @@ public class UserExportConfig {
                 .reader(singleUserTransactionReader)
                 .processor(singleUserTransactionsProcessor)
                 .writer(writer)
+                .listener(new MainChunkListener())
                 .taskExecutor(taskExecutor)
                 .build();
     }
@@ -106,6 +109,7 @@ public class UserExportConfig {
                 .reader(allUsersReader)
                 .processor(readUserProcessor)
                 .writer(chunk -> System.out.println("chunk = " + chunk))
+                .listener(new MainChunkListener())
                 .taskExecutor(taskExecutor)
                 .build();
 
@@ -121,9 +125,12 @@ public class UserExportConfig {
 
     @Bean(name = "asyncJobLauncher")
     public JobLauncher jobLauncher() throws Exception {
+        SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
+        taskExecutor.setConcurrencyLimit(8);
+
         TaskExecutorJobLauncher jobLauncher = new TaskExecutorJobLauncher();
         jobLauncher.setJobRepository(jobRepository);
-        jobLauncher.setTaskExecutor(new SimpleAsyncTaskExecutor());
+        jobLauncher.setTaskExecutor(taskExecutor);
         jobLauncher.afterPropertiesSet();
         return jobLauncher;
     }
