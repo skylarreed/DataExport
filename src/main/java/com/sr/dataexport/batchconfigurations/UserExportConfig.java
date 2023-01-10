@@ -14,7 +14,7 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.database.JpaPagingItemReader;
+import org.springframework.batch.item.support.ClassifierCompositeItemWriter;
 import org.springframework.batch.item.support.SynchronizedItemStreamReader;
 import org.springframework.batch.item.support.SynchronizedItemStreamWriter;
 import org.springframework.batch.item.support.builder.SynchronizedItemStreamWriterBuilder;
@@ -49,7 +49,11 @@ public class UserExportConfig {
 
     private final ReadUserProcessor readUserProcessor;
 
-    private final JpaPagingItemReader<Transaction> dbTransactionReader;
+    private final SynchronizedItemStreamReader<Transaction> allTransactionsReader;
+
+    private final ClassifierCompositeItemWriter<Transaction> classifiedWriter;
+
+
 
 
 
@@ -58,7 +62,7 @@ public class UserExportConfig {
                             PlatformTransactionManager transactionManager,
                             SingleUserTransactionsProcessor singleUserTransactionsProcessor,
                             SimpleAsyncTaskExecutor taskExecutor, SynchronizedItemStreamReader<User> allUsersReader,
-                            ReadUserProcessor readUserProcessor, JpaPagingItemReader<Transaction> dbTransactionReader) {
+                            ReadUserProcessor readUserProcessor, SynchronizedItemStreamReader<Transaction> allTransactionsReader, ClassifierCompositeItemWriter<Transaction> classifiedWriter) {
         this.singleUserTransactionReader = reader;
         this.writer = writer;
         this.jobRepository = jobRepository;
@@ -68,7 +72,9 @@ public class UserExportConfig {
 
         this.allUsersReader = allUsersReader;
         this.readUserProcessor = readUserProcessor;
-        this.dbTransactionReader = dbTransactionReader;
+
+        this.allTransactionsReader = allTransactionsReader;
+        this.classifiedWriter = classifiedWriter;
     }
 
     @Bean
@@ -89,7 +95,7 @@ public class UserExportConfig {
     public Step userTransactionsStep(){
         return new StepBuilder("userTransactions", jobRepository)
                 .<Transaction, Transaction>chunk(800, transactionManager)
-                .reader(dbTransactionReader)
+                .reader(singleUserTransactionReader)
                 .processor(singleUserTransactionsProcessor)
                 .writer(writer)
                 .listener(new MainChunkListener())
@@ -135,6 +141,24 @@ public class UserExportConfig {
         jobLauncher.setTaskExecutor(taskExecutor);
         jobLauncher.afterPropertiesSet();
         return jobLauncher;
+    }
+
+    @Bean
+    public Step exportUserTransactions(){
+        return new StepBuilder("exportUserTransactionsStep", jobRepository)
+                .<Transaction, Transaction>chunk(1000, transactionManager)
+                .reader(allTransactionsReader)
+                .writer(classifiedWriter)
+                .listener(new MainChunkListener())
+                .taskExecutor(taskExecutor)
+                .build();
+    }
+
+    @Bean(name = "exportUserTransactionsJob")
+    public Job exportUserTransactionsJob(){
+        return new JobBuilder("exportUserTransactionsJob", jobRepository)
+                .start(exportUserTransactions())
+                .build();
     }
 
 }

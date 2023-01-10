@@ -18,19 +18,22 @@ public class UserExportService {
 
     private final Job readUserJob;
 
-    private final Job transactionsJob;
+
+    private final Job exportUserTransactionsJob;
 
     private final JobLauncher jobLauncher;
 
-    private final AsyncUserExport asyncUserExport;
+
 
     public UserExportService(@Qualifier("singleUserTransactions") Job singleUserExportJob,
-                             @Qualifier("readUsers") Job readUserJob, @Qualifier("transactionJob") Job transactionsJob, @Qualifier("asyncJobLauncher") JobLauncher jobLauncher, AsyncUserExport asyncUserExport) {
+                             @Qualifier("readUsers") Job readUserJob,
+                             @Qualifier("asyncJobLauncher") JobLauncher jobLauncher,
+                             @Qualifier("exportUserTransactionsJob") Job exportUserTransactionsJob) {
         this.singleUserExportJob = singleUserExportJob;
         this.readUserJob = readUserJob;
-        this.transactionsJob = transactionsJob;
         this.jobLauncher = jobLauncher;
-        this.asyncUserExport = asyncUserExport;
+
+        this.exportUserTransactionsJob = exportUserTransactionsJob;
     }
 
     public ResponseEntity<?> exportSingleUserTransactions(String outputPath, long userId) {
@@ -60,13 +63,11 @@ public class UserExportService {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addString("filePath", "src/main/resources/transactions.csv")
                     .addString("time", LocalDateTime.now().toString())
-                    .addString("outputPath", outputPath)
+                    .addString("destination", outputPath)
                     .toJobParameters();
 
-            JobExecution jobExecution = jobLauncher.run(readUserJob, jobParameters);
+            JobExecution jobExecution = jobLauncher.run(exportUserTransactionsJob, jobParameters);
 
-
-            asyncUserExport.exportAllUsersTransactionsAsync(outputPath, jobExecution, singleUserExportJob, jobLauncher);
             return ResponseEntity.ok().build();
 
         } catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException |
@@ -76,25 +77,6 @@ public class UserExportService {
     }
 
 
-    public ResponseEntity<?> exportTransactionsDatabase(){
-        try {
-            JobParameters jobParameters = new JobParametersBuilder()
-                    .addString("filePath", "src/main/resources/transactions.csv")
-                    .addString("time", LocalDateTime.now().toString())
-                    .toJobParameters();
-
-            JobExecution jobExecution = jobLauncher.run(transactionsJob, jobParameters);
-
-            if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
-                return ResponseEntity.ok().build();
-            } else {
-                return ResponseEntity.badRequest().build();
-            }
-        } catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException |
-                JobParametersInvalidException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
 
 
 

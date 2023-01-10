@@ -24,8 +24,4 @@ public class UserExportController {
         return userExportService.exportAllUsersTransactions(outputPath);
     }
 
-    @GetMapping("/transactions")
-    public ResponseEntity<?> exportAllTransactions() {
-        return userExportService.exportTransactionsDatabase();
-    }
 }
