@@ -7,15 +7,14 @@ import com.sr.dataexport.processors.ReadUserProcessor;
 import com.sr.dataexport.processors.SingleUserTransactionsProcessor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.launch.support.SimpleJobLauncher;
 import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.Chunk;
-import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.item.support.SynchronizedItemStreamReader;
 import org.springframework.batch.item.support.SynchronizedItemStreamWriter;
 import org.springframework.batch.item.support.builder.SynchronizedItemStreamWriterBuilder;
@@ -25,13 +24,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.oxm.xstream.XStreamMarshaller;
 import org.springframework.transaction.PlatformTransactionManager;
 
 
 @Configuration
+@EnableBatchProcessing
 public class UserExportConfig {
 
     private final SynchronizedItemStreamReader<Transaction> singleUserTransactionReader;
@@ -50,6 +49,8 @@ public class UserExportConfig {
 
     private final ReadUserProcessor readUserProcessor;
 
+    private final JpaPagingItemReader<Transaction> dbTransactionReader;
+
 
 
     public UserExportConfig(@Qualifier("userTransactionsReader") SynchronizedItemStreamReader<Transaction> reader,
@@ -57,7 +58,7 @@ public class UserExportConfig {
                             PlatformTransactionManager transactionManager,
                             SingleUserTransactionsProcessor singleUserTransactionsProcessor,
                             SimpleAsyncTaskExecutor taskExecutor, SynchronizedItemStreamReader<User> allUsersReader,
-                            ReadUserProcessor readUserProcessor) {
+                            ReadUserProcessor readUserProcessor, JpaPagingItemReader<Transaction> dbTransactionReader) {
         this.singleUserTransactionReader = reader;
         this.writer = writer;
         this.jobRepository = jobRepository;
@@ -67,6 +68,7 @@ public class UserExportConfig {
 
         this.allUsersReader = allUsersReader;
         this.readUserProcessor = readUserProcessor;
+        this.dbTransactionReader = dbTransactionReader;
     }
 
     @Bean
@@ -87,7 +89,7 @@ public class UserExportConfig {
     public Step userTransactionsStep(){
         return new StepBuilder("userTransactions", jobRepository)
                 .<Transaction, Transaction>chunk(800, transactionManager)
-                .reader(singleUserTransactionReader)
+                .reader(dbTransactionReader)
                 .processor(singleUserTransactionsProcessor)
                 .writer(writer)
                 .listener(new MainChunkListener())

@@ -11,10 +11,10 @@ public class ReadUserProcessor implements ItemProcessor<User, User> {
     @Override
     public User process(User user) throws Exception {
         synchronized (this){
-            if(UserTracker.users.contains(user.getUserId())){
+            if(UserTracker.users.containsKey(user.getUserId())){
                 return null;
             } else {
-                UserTracker.users.add(user.getUserId());
+                UserTracker.users.put(user.getUserId(), "Running");
                 return user;
             }
         }

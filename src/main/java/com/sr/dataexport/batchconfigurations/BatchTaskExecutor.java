@@ -11,6 +11,7 @@ public class BatchTaskExecutor{
     public SimpleAsyncTaskExecutor taskExecutor() {
         SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
         taskExecutor.setThreadNamePrefix("spring-batch-");
+        taskExecutor.setConcurrencyLimit(10);
         return taskExecutor;
     }
 }

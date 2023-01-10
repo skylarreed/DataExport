@@ -23,4 +23,9 @@ public class UserExportController {
     public ResponseEntity<?> exportAllUsersTransactions(@RequestParam("destination") String outputPath){
         return userExportService.exportAllUsersTransactions(outputPath);
     }
+
+    @GetMapping("/transactions")
+    public ResponseEntity<?> exportAllTransactions() {
+        return userExportService.exportTransactionsDatabase();
+    }
 }

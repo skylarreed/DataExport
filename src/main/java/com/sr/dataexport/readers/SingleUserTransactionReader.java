@@ -5,6 +5,7 @@ import com.sr.dataexport.exceptions.FileNotValidException;
 import com.sr.dataexport.models.Transaction;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.LineMapper;
 import org.springframework.batch.item.support.SynchronizedItemStreamReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -81,7 +82,6 @@ public class SingleUserTransactionReader {
             }
             return transaction;
         });
-
         SynchronizedItemStreamReader<Transaction> synchronizedReader = new SynchronizedItemStreamReader<>();
         synchronizedReader.setDelegate(itemReader);
         return synchronizedReader;

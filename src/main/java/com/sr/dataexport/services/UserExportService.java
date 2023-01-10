@@ -1,6 +1,5 @@
 package com.sr.dataexport.services;
 
-import com.sr.dataexport.utils.UserTracker;
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
@@ -10,7 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
+import java.time.LocalDateTime;
 
 @Service
 public class UserExportService {
@@ -19,13 +18,19 @@ public class UserExportService {
 
     private final Job readUserJob;
 
+    private final Job transactionsJob;
+
     private final JobLauncher jobLauncher;
 
+    private final AsyncUserExport asyncUserExport;
+
     public UserExportService(@Qualifier("singleUserTransactions") Job singleUserExportJob,
-                             @Qualifier("readUsers") Job readUserJob, @Qualifier("asyncJobLauncher") JobLauncher jobLauncher) {
+                             @Qualifier("readUsers") Job readUserJob, @Qualifier("transactionJob") Job transactionsJob, @Qualifier("asyncJobLauncher") JobLauncher jobLauncher, AsyncUserExport asyncUserExport) {
         this.singleUserExportJob = singleUserExportJob;
         this.readUserJob = readUserJob;
+        this.transactionsJob = transactionsJob;
         this.jobLauncher = jobLauncher;
+        this.asyncUserExport = asyncUserExport;
     }
 
     public ResponseEntity<?> exportSingleUserTransactions(String outputPath, long userId) {
@@ -33,6 +38,7 @@ public class UserExportService {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addString("filePath", "src/main/resources/transactions.csv")
                     .addString("outputPath", outputPath + "/" + userId + "_transactions.xml")
+                    .addString("time", LocalDateTime.now().toString())
                     .addLong("userId", userId)
                     .toJobParameters();
 
@@ -53,34 +59,43 @@ public class UserExportService {
         try {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addString("filePath", "src/main/resources/transactions.csv")
+                    .addString("time", LocalDateTime.now().toString())
                     .addString("outputPath", outputPath)
                     .toJobParameters();
 
             JobExecution jobExecution = jobLauncher.run(readUserJob, jobParameters);
 
-            HashSet<Long> users = UserTracker.users;
 
-            while(jobExecution.getStatus() != BatchStatus.COMPLETED){
-                Thread.sleep(1000);
-            }
-            for (Long userId : users) {
-                JobParameters userJobParams = new JobParametersBuilder()
-                        .addString("filePath", "src/main/resources/transactions.csv")
-                        .addString("outputPath", outputPath + "/" + userId + "_transactions.xml")
-                        .addLong("userId", userId)
-                        .toJobParameters();
-
-                jobLauncher.run(singleUserExportJob, userJobParams);
-            }
+            asyncUserExport.exportAllUsersTransactionsAsync(outputPath, jobExecution, singleUserExportJob, jobLauncher);
             return ResponseEntity.ok().build();
 
         } catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException |
                  JobParametersInvalidException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
     }
+
+
+    public ResponseEntity<?> exportTransactionsDatabase(){
+        try {
+            JobParameters jobParameters = new JobParametersBuilder()
+                    .addString("filePath", "src/main/resources/transactions.csv")
+                    .addString("time", LocalDateTime.now().toString())
+                    .toJobParameters();
+
+            JobExecution jobExecution = jobLauncher.run(transactionsJob, jobParameters);
+
+            if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.badRequest().build();
+            }
+        } catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException |
+                JobParametersInvalidException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 
 
 
