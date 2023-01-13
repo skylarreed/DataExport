@@ -11,6 +11,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Component;
 
+/**
+ * @author sr
+ * @ClassName TransactionReader
+ * @Description This class is used to read the transactions from the file. It is the main reader for all jobs currently.
+ * It is a step scope bean so that it can be passed the file name from the job parameters.
+ */
 @Component
 public class TransactionReader {
     @Bean(name = "allTransactionsReader")

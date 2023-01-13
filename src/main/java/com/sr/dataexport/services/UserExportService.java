@@ -16,7 +16,7 @@ public class UserExportService {
 
     private final Job singleUserExportJob;
 
-    private final Job readUserJob;
+
 
 
     private final Job exportUserTransactionsJob;
@@ -26,11 +26,9 @@ public class UserExportService {
 
 
     public UserExportService(@Qualifier("singleUserTransactions") Job singleUserExportJob,
-                             @Qualifier("readUsers") Job readUserJob,
                              @Qualifier("asyncJobLauncher") JobLauncher jobLauncher,
                              @Qualifier("exportUserTransactionsJob") Job exportUserTransactionsJob) {
         this.singleUserExportJob = singleUserExportJob;
-        this.readUserJob = readUserJob;
         this.jobLauncher = jobLauncher;
 
         this.exportUserTransactionsJob = exportUserTransactionsJob;
@@ -41,6 +39,7 @@ public class UserExportService {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addString("filePath", "src/main/resources/transactions.csv")
                     .addString("outputPath", outputPath + "/" + userId + "_transactions.xml")
+                    .addString("userId", String.valueOf(userId))
                     .addString("time", LocalDateTime.now().toString())
                     .addLong("userId", userId)
                     .toJobParameters();
@@ -62,6 +61,7 @@ public class UserExportService {
         try {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addString("filePath", "src/main/resources/transactions.csv")
+                    .addString("destination", outputPath + "/all_users_transactions.xml")
                     .addString("time", LocalDateTime.now().toString())
                     .addString("destination", outputPath)
                     .toJobParameters();
