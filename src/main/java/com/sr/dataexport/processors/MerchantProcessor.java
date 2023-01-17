@@ -16,14 +16,14 @@ import org.springframework.stereotype.Component;
 public class MerchantProcessor implements ItemProcessor<Transaction, Transaction> {
 
     @Value("#{jobParameters['merchantId']}")
-    private String merchantId;
+    private long merchantId;
 
     @Override
     public Transaction process(Transaction transaction) throws Exception {
-        long id = Long.parseLong(merchantId);
-        if(transaction.getMerchantId() == id) {
+        if (transaction.getMerchantId() == merchantId) {
             return transaction;
         }
+
         return null;
     }
 }

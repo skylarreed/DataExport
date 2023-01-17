@@ -23,14 +23,15 @@ public class MerchantExportController {
     }
 
     /**
-     * @param outputPath
+     * @param destination
      * @param merchantId
      * @return ResponseEntity<?> to indicate the status of the request.
      * @Description This method is used to expose the endpoint to export a single merchant's transactions.
      */
     @GetMapping("/merchants/{merchantId}")
-    public ResponseEntity<?> exportSingleMerchantTransactions(@RequestParam("destination") String outputPath, @PathVariable long merchantId){
-        return merchantExportService.exportSingleMerchantTransactions(outputPath, merchantId);
+    public ResponseEntity<?> exportSingleMerchantTransactions(@RequestParam("destination") String destination,
+                                                              @PathVariable long merchantId){
+        return merchantExportService.exportSingleMerchantTransactions(destination, merchantId);
     }
 
     /**
@@ -42,4 +43,5 @@ public class MerchantExportController {
     public ResponseEntity<?> exportAllMerchantsTransactions(@RequestParam("destination") String outputPath){
         return merchantExportService.exportMerchantTransactions(outputPath);
     }
+
 }

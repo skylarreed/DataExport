@@ -24,24 +24,25 @@ public class UserExportController {
     }
 
     /**
-     * @param outputPath
+     * @param destination
      * @param userId
      * @return ResponseEntity<?> to indicate the status of the request.
      * @Description This method is used to expose the endpoint to export a single user's transactions.
      */
     @GetMapping("/users/{userId}")
-    public ResponseEntity<?> exportSingleUserTransactions(@RequestParam("destination") String outputPath, @PathVariable long userId){
-        return userExportService.exportSingleUserTransactions(outputPath, userId);
+    public ResponseEntity<?> exportSingleUserTransactions(@RequestParam("destination") String destination,
+                                                          @PathVariable long userId){
+        return userExportService.exportSingleUserTransactions(destination, userId);
     }
 
     /**
-     * @param outputPath
+     * @param destination
      * @return ResponseEntity<?> to indicate the status of the request.
      * @Description This method is used to expose the endpoint to export all users' transactions.
      */
     @GetMapping("/users")
-    public ResponseEntity<?> exportAllUsersTransactions(@RequestParam("destination") String outputPath){
-        return userExportService.exportAllUsersTransactions(outputPath);
+    public ResponseEntity<?> exportAllUsersTransactions(@RequestParam("destination") String destination){
+        return userExportService.exportAllUsersTransactions(destination);
     }
 
 

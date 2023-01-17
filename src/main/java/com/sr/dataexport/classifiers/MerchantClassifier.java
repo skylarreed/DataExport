@@ -35,7 +35,6 @@ public class MerchantClassifier implements Classifier<Transaction, ItemWriter<? 
     @Value("#{jobParameters['destination']}")
     private String destination;
 
-
     public MerchantClassifier() {
         this.writerMap = new HashMap<>();
     }
@@ -55,7 +54,6 @@ public class MerchantClassifier implements Classifier<Transaction, ItemWriter<? 
                 return writerMap.get(fileName);
             }
 
-
             XStreamMarshaller marshaller = new XStreamMarshaller();
             marshaller.setAliases(Collections.singletonMap("transaction", Transaction.class));
             marshaller.setAnnotatedClasses(Transaction.class);
@@ -67,13 +65,15 @@ public class MerchantClassifier implements Classifier<Transaction, ItemWriter<? 
                     .resource(new FileSystemResource(fileName))
                     .build();
 
-
             SynchronizedItemStreamWriter<Transaction> synchronizedWriter = new SynchronizedItemStreamWriterBuilder<Transaction>()
                     .delegate(writer)
                     .build();
 
+
             synchronizedWriter.open(new ExecutionContext());
+
             writerMap.put(fileName, synchronizedWriter);
+
             return synchronizedWriter;
         }
     }
@@ -89,4 +89,5 @@ public class MerchantClassifier implements Classifier<Transaction, ItemWriter<? 
         }
         writerMap.clear();
     }
+
 }

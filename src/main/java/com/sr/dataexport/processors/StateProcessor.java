@@ -6,24 +6,18 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/**
- * @author sr
- * @ClassName UserProcessor
- * @Description This class is used to process the transactions return the transaction if it matches the id provided.
- */
 @Component
 @StepScope
-public class UserProcessor implements ItemProcessor<Transaction, Transaction> {
+public class StateProcessor implements ItemProcessor<Transaction, Transaction> {
 
-    @Value("#{jobParameters['userId']}")
-    private long userId;
+    @Value("#{jobParameters['state']}")
+    private String state;
 
     @Override
     public Transaction process(Transaction transaction) throws Exception {
-        if(transaction.getUserId() == userId) {
+        if(transaction.getMerchantState().equals(state)) {
             return transaction;
         }
         return null;
     }
 }
-

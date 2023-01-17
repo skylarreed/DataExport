@@ -9,6 +9,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.support.ClassifierCompositeItemWriter;
 import org.springframework.batch.item.support.SynchronizedItemStreamReader;
+import org.springframework.batch.item.support.SynchronizedItemStreamWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +38,8 @@ public class MerchantExportConfig {
 
     private final MerchantClassifier merchantClassifier;
 
+    private final SynchronizedItemStreamWriter<Transaction> staxWriter;
+
     /**
      * @param transactionReader
      * @param jobRepository
@@ -44,19 +47,20 @@ public class MerchantExportConfig {
      * @param taskExecutor
      * @param merchantProcessor
      * @param merchantClassifier
-     *
+     * @param staxWriter
      * @Description This constructor is used to inject the required dependencies.
      */
     public MerchantExportConfig(@Qualifier("allTransactionsReader") SynchronizedItemStreamReader<Transaction> transactionReader,
                                 JobRepository jobRepository, PlatformTransactionManager transactionManager,
                                 AsyncTaskExecutor taskExecutor, MerchantProcessor merchantProcessor,
-                                MerchantClassifier merchantClassifier) {
+                                MerchantClassifier merchantClassifier, SynchronizedItemStreamWriter<Transaction> staxWriter) {
         this.transactionReader = transactionReader;
         this.jobRepository = jobRepository;
         this.transactionManager = transactionManager;
         this.taskExecutor = taskExecutor;
         this.merchantProcessor = merchantProcessor;
         this.merchantClassifier = merchantClassifier;
+        this.staxWriter = staxWriter;
     }
 
     /**
@@ -94,20 +98,9 @@ public class MerchantExportConfig {
                 .<Transaction, Transaction>chunk(10000, transactionManager)
                 .reader(transactionReader)
                 .processor(merchantProcessor)
-                .writer(classifierWriter(merchantClassifier))
-                .taskExecutor(taskExecutor)
-                .listener(new StepExecutionListener() {
-                    @Override
-                    public void beforeStep(StepExecution stepExecution) {
-                        StepExecutionListener.super.beforeStep(stepExecution);
-                    }
+                .writer(staxWriter)
 
-                    @Override
-                    public ExitStatus afterStep(StepExecution stepExecution) {
-                        merchantClassifier.close();
-                        return StepExecutionListener.super.afterStep(stepExecution);
-                    }
-                })
+                .taskExecutor(taskExecutor)
                 .build();
     }
 
@@ -144,6 +137,7 @@ public class MerchantExportConfig {
                 .start(singleMerchantExportStep())
                 .build();
     }
+
 
 
 }

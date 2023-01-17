@@ -1,11 +1,11 @@
 package com.sr.dataexport.batchconfigurations;
 
+import com.sr.dataexport.classifiers.StateClassifier;
 import com.sr.dataexport.classifiers.UserClassifier;
 import com.sr.dataexport.listeners.MainChunkListener;
 import com.sr.dataexport.models.Transaction;
-import com.sr.dataexport.processors.UserProcessor;
+import com.sr.dataexport.processors.StateProcessor;
 import org.springframework.batch.core.*;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.launch.support.TaskExecutorJobLauncher;
@@ -19,19 +19,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
-/**
- * @author sr
- * @ClassName UserExportConfig
- * @Description This class is used to configure the user export job. It contains both the single
- * user export step and the step to export all users.
- */
 @Configuration
-@EnableBatchProcessing
-public class UserExportConfig {
-
-
-
-
+public class StateTransactionsConfig {
     private final JobRepository jobRepository;
 
     private final PlatformTransactionManager transactionManager;
@@ -43,9 +32,9 @@ public class UserExportConfig {
     private final SynchronizedItemStreamReader<Transaction> allTransactionsReader;
 
 
-    private final UserProcessor userProcessor;
+    private final StateProcessor stateProcessor;
 
-    private final UserClassifier userClassifier;
+    private final StateClassifier stateClassifier;
 
     private final SynchronizedItemStreamWriter<Transaction> staxWriter;
 
@@ -57,30 +46,29 @@ public class UserExportConfig {
      * @param transactionManager
      * @param taskExecutor
      * @param allTransactionsReader
-     * @param userProcessor
+     * @param stateProcessor
      * @param userClassifier
+     * @param stateClassifier
      * @param staxWriter
      * @Description This constructor is used to inject the required dependencies.
      */
 
 
-    public UserExportConfig(
+    public StateTransactionsConfig(
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
             SimpleAsyncTaskExecutor taskExecutor,
             SynchronizedItemStreamReader<Transaction> allTransactionsReader,
-            UserProcessor userProcessor, UserClassifier userClassifier, SynchronizedItemStreamWriter<Transaction> staxWriter) {
+            StateProcessor stateProcessor, UserClassifier userClassifier, StateClassifier stateClassifier, SynchronizedItemStreamWriter<Transaction> staxWriter) {
 
 
         this.jobRepository = jobRepository;
         this.transactionManager = transactionManager;
         this.taskExecutor = taskExecutor;
-
         this.allTransactionsReader = allTransactionsReader;
+        this.stateProcessor = stateProcessor;
+        this.stateClassifier = stateClassifier;
 
-
-        this.userProcessor = userProcessor;
-        this.userClassifier = userClassifier;
         this.staxWriter = staxWriter;
     }
 
@@ -91,11 +79,11 @@ public class UserExportConfig {
      */
 
     @Bean
-    public Step userTransactionsStep(){
-        return new StepBuilder("userTransactions", jobRepository)
-                .<Transaction, Transaction>chunk(10000, transactionManager)
+    public Step stateTransactionsStep(){
+        return new StepBuilder("stateTransactions", jobRepository)
+                .<Transaction, Transaction>chunk(50000, transactionManager)
                 .reader(allTransactionsReader)
-                .processor(userProcessor)
+                .processor(stateProcessor)
                 .writer(staxWriter)
                 .listener(new MainChunkListener())
                 .taskExecutor(taskExecutor)
@@ -107,43 +95,26 @@ public class UserExportConfig {
      *
      * @Description this method is used to configure the job to export a single user transactions.
      */
-    @Bean(name = "singleUserTransactions")
-    public Job singleUserTransactionsJob(){
-        return new JobBuilder("singleUserTransactions", jobRepository)
-                .start(userTransactionsStep())
+    @Bean(name = "singleStateTransactions")
+    public Job singleStateTransactionsJob(){
+        return new JobBuilder("singleStateTransactions", jobRepository)
+                .start(stateTransactionsStep())
                 .build();
     }
 
 
-    /**
-     * @return Job Launcher.
-     *
-     * @Description This method is used to configure a job launcher that will run asynchronously.
-     */
-
-    @Bean(name = "asyncJobLauncher")
-    public JobLauncher jobLauncher() throws Exception {
-        SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
-        taskExecutor.setConcurrencyLimit(8);
-
-        TaskExecutorJobLauncher jobLauncher = new TaskExecutorJobLauncher();
-        jobLauncher.setJobRepository(jobRepository);
-        jobLauncher.setTaskExecutor(taskExecutor);
-        jobLauncher.afterPropertiesSet();
-        return jobLauncher;
-    }
 
     /**
-     * @return all users transactions step
+     * @return all states transactions step
      *
      * @Description This method is used to configure the step to export all users transactions.
      */
     @Bean
-    public Step exportUserTransactions(){
-        return new StepBuilder("exportUserTransactionsStep", jobRepository)
-                .<Transaction, Transaction>chunk(10000, transactionManager)
+    public Step exportStateTransactions(){
+        return new StepBuilder("exportStateTransactionsStep", jobRepository)
+                .<Transaction, Transaction>chunk(50000, transactionManager)
                 .reader(allTransactionsReader)
-                .writer(classifierWriter(userClassifier))
+                .writer(classifierWriter(stateClassifier))
                 .listener(new MainChunkListener())
                 .listener(new StepExecutionListener() {
                     @Override
@@ -153,7 +124,7 @@ public class UserExportConfig {
 
                     @Override
                     public ExitStatus afterStep(StepExecution stepExecution) {
-                        userClassifier.close();
+                        stateClassifier.close();
                         return StepExecutionListener.super.afterStep(stepExecution);
                     }
                 })
@@ -166,24 +137,23 @@ public class UserExportConfig {
      *
      * @Description This method is used to configure the job to export all users transactions.
      */
-    @Bean(name = "exportUserTransactionsJob")
-    public Job exportUserTransactionsJob(){
+    @Bean(name = "exportStateTransactionsJob")
+    public Job exportStateTransactionsJob(){
         return new JobBuilder("exportUserTransactionsJob", jobRepository)
-                .start(exportUserTransactions())
+                .start(exportStateTransactions())
                 .build();
     }
 
     /**
-     * @param userClassifier
      * @return ClassifierCompositeItemWriter
      *
      * @Description This method is used to configure the classifier writer which takes a classifier.
+     * The classifierwriter helps to write to different files based on the classifier.
      */
-    @Bean("userWriter")
-    public ClassifierCompositeItemWriter<Transaction> classifierWriter(UserClassifier userClassifier) {
+    @Bean("stateWriter")
+    public ClassifierCompositeItemWriter<Transaction> classifierWriter(StateClassifier stateClassifier) {
         ClassifierCompositeItemWriter<Transaction> classifier = new ClassifierCompositeItemWriter<>();
-        classifier.setClassifier(userClassifier);
+        classifier.setClassifier(stateClassifier);
         return classifier;
     }
-
 }

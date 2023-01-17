@@ -11,6 +11,12 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+/**
+ * @author sr
+ * @ClassName MerchantExportService
+ * @Description This class is used as a service layer to handle the business logic for exporting user transactions.
+ *
+ */
 @Service
 public class UserExportService {
 
@@ -34,14 +40,19 @@ public class UserExportService {
         this.exportUserTransactionsJob = exportUserTransactionsJob;
     }
 
-    public ResponseEntity<?> exportSingleUserTransactions(String outputPath, long userId) {
+    /**
+     * @param destination
+     * @param userId
+     * @return ResponseEntity<?> to indicate the status of the request.
+     * @Description This method is used to export a single user's transactions.
+     */
+    public ResponseEntity<?> exportSingleUserTransactions(String destination, long userId) {
         try {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addString("filePath", "src/main/resources/transactions.csv")
-                    .addString("outputPath", outputPath + "/" + userId + "_transactions.xml")
-                    .addString("userId", String.valueOf(userId))
-                    .addString("time", LocalDateTime.now().toString())
+                    .addString("destination", destination + "/" + userId + "_transactions.xml")
                     .addLong("userId", userId)
+                    .addString("time", LocalDateTime.now().toString())
                     .toJobParameters();
 
             JobExecution jobExecution = jobLauncher.run(singleUserExportJob, jobParameters);
@@ -57,13 +68,17 @@ public class UserExportService {
         }
     }
 
-    public ResponseEntity<?> exportAllUsersTransactions(String outputPath) {
+    /**
+     * @param destination
+     * @return ResponseEntity<?> to indicate the status of the request.
+     * @Description This method is used to export all users' transactions.
+     */
+    public ResponseEntity<?> exportAllUsersTransactions(String destination) {
         try {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addString("filePath", "src/main/resources/transactions.csv")
-                    .addString("destination", outputPath + "/all_users_transactions.xml")
+                    .addString("destination", destination)
                     .addString("time", LocalDateTime.now().toString())
-                    .addString("destination", outputPath)
                     .toJobParameters();
 
             JobExecution jobExecution = jobLauncher.run(exportUserTransactionsJob, jobParameters);

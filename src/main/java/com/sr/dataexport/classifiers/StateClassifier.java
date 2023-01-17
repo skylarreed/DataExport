@@ -1,47 +1,33 @@
 package com.sr.dataexport.classifiers;
 
 import com.sr.dataexport.models.Transaction;
-import com.thoughtworks.xstream.annotations.XStreamAlias;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.support.SynchronizedItemStreamReader;
 import org.springframework.batch.item.support.SynchronizedItemStreamWriter;
 import org.springframework.batch.item.support.builder.SynchronizedItemStreamWriterBuilder;
 import org.springframework.batch.item.xml.StaxEventItemWriter;
 import org.springframework.batch.item.xml.builder.StaxEventItemWriterBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.classify.Classifier;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.oxm.xstream.XStreamMarshaller;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author sr
- * @ClassName UserClassifier
- * @Description This class implements the Classifier interface and is used to classify the transactions based on
- * the user id. It saves each user's transactions in a separate file.
- */
 @Component
 @StepScope
-@Slf4j
-public class UserClassifier implements Classifier<Transaction, ItemWriter<? super Transaction>> {
-
+public class StateClassifier implements Classifier<Transaction, ItemWriter<? super Transaction>> {
     private final Map<String, ItemWriter<? super Transaction>> writerMap;
 
     @Value("#{jobParameters['destination']}")
     private String destination;
 
 
-    public UserClassifier() {
+    public StateClassifier() {
         this.writerMap = new HashMap<>();
     }
 
@@ -54,7 +40,7 @@ public class UserClassifier implements Classifier<Transaction, ItemWriter<? supe
      */
     @Override
     public ItemWriter<? super Transaction> classify(Transaction transaction) {
-        String fileName = destination + "/" + "user-" + transaction.getUserId() + "-transactions" + ".xml";
+        String fileName = destination + "/" + "state-" + transaction.getMerchantState() + "-transactions" + ".xml";
         synchronized (this) {
             if (writerMap.containsKey(fileName)) {
                 return writerMap.get(fileName);
@@ -70,6 +56,8 @@ public class UserClassifier implements Classifier<Transaction, ItemWriter<? supe
                     .rootTagName("UserTransactions")
                     .marshaller(marshaller)
                     .resource(new FileSystemResource(fileName))
+                    .encoding("UTF-8")
+                    .transactional(true)
                     .build();
             SynchronizedItemStreamWriter<Transaction> synchronizedWriter = new SynchronizedItemStreamWriterBuilder<Transaction>()
                     .delegate(writer)

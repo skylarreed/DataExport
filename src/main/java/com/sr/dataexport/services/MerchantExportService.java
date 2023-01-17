@@ -10,12 +10,19 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+/**
+ * @author sr
+ * @ClassName MerchantExportService
+ * @Description This class is used as a service layer to handle the business logic for exporting merchant transactions.
+ *
+ */
 @Service
 public class MerchantExportService {
 
     private final Job singleMerchantExportJob;
 
     private final Job allMerchantExportJob;
+
 
     private final JobLauncher jobLauncher;
     public MerchantExportService(@Qualifier("singleMerchantExportJob") Job singleMerchantExportJob,
@@ -26,10 +33,16 @@ public class MerchantExportService {
         this.jobLauncher = jobLauncher;
     }
 
+    /**
+     * @param destination
+     * @param merchantId
+     * @return ResponseEntity<?> to indicate the status of the request.
+     * @Description This method is used to export a single merchant's transactions.
+     */
     public ResponseEntity<?> exportSingleMerchantTransactions(String destination, long merchantId) {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filePath", "src/main/resources/transactions.csv")
-                .addString("destination", destination)
+                .addString("destination", destination + "/" + merchantId + "-transactions.xml")
                 .addString("time", LocalDateTime.now().toString())
                 .addLong("merchantId", merchantId)
                 .toJobParameters();
@@ -42,6 +55,11 @@ public class MerchantExportService {
         }
     }
 
+    /**
+     * @param destination
+     * @return ResponseEntity<?> to indicate the status of the request.
+     * @Description This method is used to export all merchants' transactions.
+     */
     public ResponseEntity<?> exportMerchantTransactions(String destination){
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filePath", "src/main/resources/transactions.csv")
@@ -56,5 +74,6 @@ public class MerchantExportService {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 }
 
