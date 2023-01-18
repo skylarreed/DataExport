@@ -52,23 +52,17 @@ public class StateClassifier implements Classifier<Transaction, ItemWriter<? sup
             marshaller.setAnnotatedClasses(Transaction.class);
 
             StaxEventItemWriter<Transaction> writer = new StaxEventItemWriterBuilder<Transaction>()
-                    .name("userTransactionWriter")
-                    .rootTagName("UserTransactions")
+                    .name("stateTransactionWriter")
+                    .rootTagName("StateTransactions")
                     .marshaller(marshaller)
                     .resource(new FileSystemResource(fileName))
-                    .encoding("UTF-8")
-                    .transactional(true)
                     .build();
             SynchronizedItemStreamWriter<Transaction> synchronizedWriter = new SynchronizedItemStreamWriterBuilder<Transaction>()
                     .delegate(writer)
                     .build();
 
             synchronizedWriter.open(new ExecutionContext());
-            try {
-                synchronizedWriter.afterPropertiesSet();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+
             writerMap.put(fileName, synchronizedWriter);
             return synchronizedWriter;
         }

@@ -69,7 +69,7 @@ public class MerchantExportConfig {
      */
     public Step merchantExportStep() {
         return new StepBuilder("merchantExportStep", jobRepository)
-                .<Transaction, Transaction>chunk(10000, transactionManager)
+                .<Transaction, Transaction>chunk(60000, transactionManager)
                 .reader(transactionReader)
                 .writer(classifierWriter(merchantClassifier))
                 .taskExecutor(taskExecutor)
@@ -95,7 +95,7 @@ public class MerchantExportConfig {
     @Bean
     public Step singleMerchantExportStep(){
         return new StepBuilder("singleMerchantExportStep", jobRepository)
-                .<Transaction, Transaction>chunk(10000, transactionManager)
+                .<Transaction, Transaction>chunk(60000, transactionManager)
                 .reader(transactionReader)
                 .processor(merchantProcessor)
                 .writer(staxWriter)

@@ -52,8 +52,8 @@ public class YearClassifier implements Classifier<Transaction, ItemWriter<? supe
             marshaller.setAnnotatedClasses(Transaction.class);
 
             StaxEventItemWriter<Transaction> writer = new StaxEventItemWriterBuilder<Transaction>()
-                    .name("userTransactionWriter")
-                    .rootTagName("UserTransactions")
+                    .name("yearTransactionWriter")
+                    .rootTagName("YearTransactions")
                     .marshaller(marshaller)
                     .resource(new FileSystemResource(fileName))
                     .build();
@@ -62,11 +62,6 @@ public class YearClassifier implements Classifier<Transaction, ItemWriter<? supe
                     .build();
 
             synchronizedWriter.open(new ExecutionContext());
-            try {
-                synchronizedWriter.afterPropertiesSet();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
             writerMap.put(fileName, synchronizedWriter);
             return synchronizedWriter;
         }

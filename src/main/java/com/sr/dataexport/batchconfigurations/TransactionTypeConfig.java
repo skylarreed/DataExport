@@ -17,6 +17,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
+/**
+ * @ClassName TransactionTypeConfig
+ * @Description This class is used to configure the job for transaction type.
+ */
 @Configuration
 public class TransactionTypeConfig {
 
@@ -33,6 +37,16 @@ public class TransactionTypeConfig {
     private final TransactionTypeProcessor transactionTypeProcessor;
     private final AsyncTaskExecutor taskExecutor;
 
+    /**
+     * @param transactionTypeClassifier
+     * @param transactionReader
+     * @param jobRepository
+     * @param transactionManager
+     * @param staxWriter
+     * @param transactionTypeProcessor
+     * @param taskExecutor
+     * @Description This constructor is used to inject the required dependencies.
+     */
     public TransactionTypeConfig(TransactionTypeClassifier transactionTypeClassifier,
                                  @Qualifier("allTransactionsReader") SynchronizedItemStreamReader<Transaction> transactionReader,
                                  JobRepository jobRepository, PlatformTransactionManager transactionManager,
@@ -46,6 +60,10 @@ public class TransactionTypeConfig {
         this.taskExecutor = taskExecutor;
     }
 
+    /**
+     * @return ClassifierCompositeItemWriter<Transaction>
+     * @Description This method is used create the classified writer for the transaction type
+     */
     @Bean
     public ClassifierCompositeItemWriter<Transaction> transactionTypeClassifiedWriter() {
         ClassifierCompositeItemWriter<Transaction> classifier = new ClassifierCompositeItemWriter<>();
@@ -53,10 +71,14 @@ public class TransactionTypeConfig {
         return classifier;
     }
 
+    /**
+     * @return Step
+     * @Description This method is used to create the step for transaction type.
+     */
     @Bean
     public Step transactionTypeStep() {
         return new StepBuilder("transactionTypeStep", jobRepository)
-                .<Transaction, Transaction>chunk(25000, transactionManager)
+                .<Transaction, Transaction>chunk(60000, transactionManager)
                 .reader(transactionReader)
                 .writer(transactionTypeClassifiedWriter())
                 .listener(new MainChunkListener())
@@ -76,6 +98,10 @@ public class TransactionTypeConfig {
                 .build();
     }
 
+    /**
+     * @return Job
+     * @Description This method is used to create the job for the export of all transaction types.
+     */
     @Bean(name = "transactionTypeJob")
     public Job transactionTypeJob() {
         return new JobBuilder("transactionTypeJob", jobRepository)
@@ -83,10 +109,14 @@ public class TransactionTypeConfig {
                 .build();
     }
 
+    /**
+     * @return Step
+     * @Description This method is used to create the step for a single transaction type.
+     */
     @Bean
     public Step singleTransactionType(){
         return new StepBuilder("singleTransactionType", jobRepository)
-                .<Transaction, Transaction>chunk(25000, transactionManager)
+                .<Transaction, Transaction>chunk(60000, transactionManager)
                 .reader(transactionReader)
                 .processor(transactionTypeProcessor)
                 .writer(staxWriter)
@@ -94,6 +124,11 @@ public class TransactionTypeConfig {
                 .taskExecutor(taskExecutor)
                 .build();
     }
+
+    /**
+     * @return Job
+     * @Description This method is used to create the job for a single transaction type.
+     */
     @Bean(name = "singleTransactionTypeJob")
     public Job singleTransactionTypeJob(){
         return new JobBuilder("singleTransactionTypeJob", jobRepository)

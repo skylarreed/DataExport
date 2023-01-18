@@ -70,15 +70,15 @@ public class YearTransactionsConfig {
     }
 
     /**
-     * @return user transactions step.
+     * @return Year transactions step.
      *
-     * @Description This method is used to configure the step to export a single users transactions.
+     * @Description This method is used to configure the step to export a single Years transactions.
      */
 
     @Bean
     public Step yearTransactionsStep(){
         return new StepBuilder("yearTransactions", jobRepository)
-                .<Transaction, Transaction>chunk(10000, transactionManager)
+                .<Transaction, Transaction>chunk(60000, transactionManager)
                 .reader(allTransactionsReader)
                 .processor(yearProcessor)
                 .writer(staxWriter)
@@ -88,9 +88,9 @@ public class YearTransactionsConfig {
     }
 
     /**
-     * @return single user transaction job.
+     * @return single Year transaction job.
      *
-     * @Description this method is used to configure the job to export a single user transactions.
+     * @Description this method is used to configure the job to export a single Year transactions.
      */
     @Bean(name = "singleYearTransactions")
     public Job singleYearTransactionsJob(){
@@ -109,7 +109,7 @@ public class YearTransactionsConfig {
     @Bean
     public Step exportYearTransactions(){
         return new StepBuilder("exportYearTransactionsStep", jobRepository)
-                .<Transaction, Transaction>chunk(10000, transactionManager)
+                .<Transaction, Transaction>chunk(60000, transactionManager)
                 .reader(allTransactionsReader)
                 .writer(classifierWriter(yearClassifier))
                 .listener(new MainChunkListener())

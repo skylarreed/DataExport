@@ -76,11 +76,7 @@ public class UserClassifier implements Classifier<Transaction, ItemWriter<? supe
                     .build();
 
             synchronizedWriter.open(new ExecutionContext());
-            try {
-                synchronizedWriter.afterPropertiesSet();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+
             writerMap.put(fileName, synchronizedWriter);
             return synchronizedWriter;
         }
