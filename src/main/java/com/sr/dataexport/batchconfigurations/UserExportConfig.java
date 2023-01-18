@@ -93,7 +93,7 @@ public class UserExportConfig {
     @Bean
     public Step userTransactionsStep(){
         return new StepBuilder("userTransactions", jobRepository)
-                .<Transaction, Transaction>chunk(60000, transactionManager)
+                .<Transaction, Transaction>chunk(10000, transactionManager)
                 .reader(allTransactionsReader)
                 .processor(userProcessor)
                 .writer(staxWriter)

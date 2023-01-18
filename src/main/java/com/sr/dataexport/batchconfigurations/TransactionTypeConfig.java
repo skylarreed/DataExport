@@ -56,7 +56,7 @@ public class TransactionTypeConfig {
     @Bean
     public Step transactionTypeStep() {
         return new StepBuilder("transactionTypeStep", jobRepository)
-                .<Transaction, Transaction>chunk(60000, transactionManager)
+                .<Transaction, Transaction>chunk(25000, transactionManager)
                 .reader(transactionReader)
                 .writer(transactionTypeClassifiedWriter())
                 .listener(new MainChunkListener())
@@ -86,7 +86,7 @@ public class TransactionTypeConfig {
     @Bean
     public Step singleTransactionType(){
         return new StepBuilder("singleTransactionType", jobRepository)
-                .<Transaction, Transaction>chunk(60000, transactionManager)
+                .<Transaction, Transaction>chunk(25000, transactionManager)
                 .reader(transactionReader)
                 .processor(transactionTypeProcessor)
                 .writer(staxWriter)

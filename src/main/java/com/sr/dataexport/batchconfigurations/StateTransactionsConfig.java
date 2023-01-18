@@ -81,7 +81,7 @@ public class StateTransactionsConfig {
     @Bean
     public Step stateTransactionsStep(){
         return new StepBuilder("stateTransactions", jobRepository)
-                .<Transaction, Transaction>chunk(60000, transactionManager)
+                .<Transaction, Transaction>chunk(50000, transactionManager)
                 .reader(allTransactionsReader)
                 .processor(stateProcessor)
                 .writer(staxWriter)
@@ -112,7 +112,7 @@ public class StateTransactionsConfig {
     @Bean
     public Step exportStateTransactions(){
         return new StepBuilder("exportStateTransactionsStep", jobRepository)
-                .<Transaction, Transaction>chunk(60000, transactionManager)
+                .<Transaction, Transaction>chunk(50000, transactionManager)
                 .reader(allTransactionsReader)
                 .writer(classifierWriter(stateClassifier))
                 .listener(new MainChunkListener())

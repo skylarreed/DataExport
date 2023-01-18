@@ -78,7 +78,7 @@ public class YearTransactionsConfig {
     @Bean
     public Step yearTransactionsStep(){
         return new StepBuilder("yearTransactions", jobRepository)
-                .<Transaction, Transaction>chunk(60000, transactionManager)
+                .<Transaction, Transaction>chunk(10000, transactionManager)
                 .reader(allTransactionsReader)
                 .processor(yearProcessor)
                 .writer(staxWriter)
@@ -109,7 +109,7 @@ public class YearTransactionsConfig {
     @Bean
     public Step exportYearTransactions(){
         return new StepBuilder("exportYearTransactionsStep", jobRepository)
-                .<Transaction, Transaction>chunk(60000, transactionManager)
+                .<Transaction, Transaction>chunk(10000, transactionManager)
                 .reader(allTransactionsReader)
                 .writer(classifierWriter(yearClassifier))
                 .listener(new MainChunkListener())
