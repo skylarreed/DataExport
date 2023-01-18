@@ -2,6 +2,9 @@ package com.sr.dataexport.services;
 
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -38,7 +41,8 @@ public class YearExportService {
                 return ResponseEntity.status(500).body("Job failed to start. Contact the administrator.");
             }
             return ResponseEntity.status(202).body("Job started");
-        } catch (Exception e) {
+        } catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException |
+                 JobParametersInvalidException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -56,7 +60,8 @@ public class YearExportService {
                 return ResponseEntity.status(500).body("Job failed to start. Contact the administrator.");
             }
             return ResponseEntity.status(202).body("Job started");
-        } catch (Exception e) {
+        } catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException |
+                 JobParametersInvalidException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
