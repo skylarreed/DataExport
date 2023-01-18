@@ -13,8 +13,18 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 
+/**
+ * @ClassName Stax
+ * @Description This class is used to configure the StaxEventItemWriter writer.
+ */
 @Component
 public class Stax {
+
+    /**
+     * @param destination
+     * @return SynchronizedItemStreamWriter<Transaction>
+     * @Description This method is used to configure the StaxEventItemWriter writer.
+     */
     @Bean(name = "staxWriter")
     @StepScope
     public SynchronizedItemStreamWriter<Transaction> staxEventItemWriter(@Value("#{jobParameters['destination']}") String destination) {
