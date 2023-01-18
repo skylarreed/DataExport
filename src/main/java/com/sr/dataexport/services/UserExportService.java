@@ -23,6 +23,8 @@ public class UserExportService {
     private final Job singleUserExportJob;
 
 
+
+
     private final Job exportUserTransactionsJob;
 
     private final JobLauncher jobLauncher;
@@ -48,17 +50,18 @@ public class UserExportService {
         try {
             JobParameters jobParameters = new JobParametersBuilder()
                     .addString("filePath", "src/main/resources/transactions.csv")
-                    .addString("destination", destination + "/user-" + userId + "-transactions.xml")
+                    .addString("destination", destination + "/" + userId + "_transactions.xml")
                     .addLong("userId", userId)
                     .addString("time", LocalDateTime.now().toString())
                     .toJobParameters();
 
             JobExecution jobExecution = jobLauncher.run(singleUserExportJob, jobParameters);
 
-            if (jobExecution.getStatus() == BatchStatus.FAILED) {
-                return ResponseEntity.status(500).body("Job failed to start. Contact the administrator.");
+            if (jobExecution.getStatus() == BatchStatus.COMPLETED) {
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.badRequest().build();
             }
-            return ResponseEntity.status(202).body("Job started");
         } catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException |
                  JobParametersInvalidException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -79,10 +82,9 @@ public class UserExportService {
                     .toJobParameters();
 
             JobExecution jobExecution = jobLauncher.run(exportUserTransactionsJob, jobParameters);
-            if (jobExecution.getStatus() == BatchStatus.FAILED) {
-                return ResponseEntity.status(500).body("Job failed to start. Contact the administrator.");
-            }
-            return ResponseEntity.status(202).body("Job started");
+
+            return ResponseEntity.ok().build();
+
         } catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException |
                  JobParametersInvalidException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

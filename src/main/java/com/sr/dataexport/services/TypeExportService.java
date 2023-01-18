@@ -1,6 +1,8 @@
 package com.sr.dataexport.services;
 
-import org.springframework.batch.core.*;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -29,11 +31,8 @@ public class TypeExportService {
                 .toJobParameters();
 
         try {
-            JobExecution jobExecution = jobLauncher.run(transactionTypeJob, jobParameters);
-            if (jobExecution.getStatus() == BatchStatus.FAILED) {
-                return ResponseEntity.status(500).body("Job failed to start. Contact the administrator.");
-            }
-            return ResponseEntity.status(202).body("Job started");
+            jobLauncher.run(transactionTypeJob, jobParameters);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -42,17 +41,14 @@ public class TypeExportService {
     public ResponseEntity<?> launchSingleTransactionTypeJob(String destination, String type) {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filePath", "src/main/resources/transactions.csv")
-                .addString("destination", destination + "/type-" + type + "-transactions.xml")
+                .addString("destination", destination + "/" + type + "-transactions.xml")
                 .addString("time", LocalDateTime.now().toString())
-                .addString("transactionType", type)
+                .addString("type", type)
                 .toJobParameters();
 
         try {
-            JobExecution jobExecution = jobLauncher.run(singleTransactionTypeJob, jobParameters);
-            if (jobExecution.getStatus() == BatchStatus.FAILED) {
-                return ResponseEntity.status(500).body("Job failed to start. Contact the administrator.");
-            }
-            return ResponseEntity.status(202).body("Job started");
+            jobLauncher.run(singleTransactionTypeJob, jobParameters);
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
