@@ -2,6 +2,8 @@ package com.sr.dataexport.controllers;
 
 import com.sr.dataexport.services.MerchantExportService;
 import com.sr.dataexport.services.UserExportService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +31,8 @@ public class MerchantExportController {
      * @Description This method is used to expose the endpoint to export a single merchant's transactions.
      */
     @GetMapping("/merchants/{merchantId}")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Export a single merchant's transactions")
     public ResponseEntity<?> exportSingleMerchantTransactions(@RequestParam("destination") String destination,
                                                               @PathVariable long merchantId){
         return merchantExportService.exportSingleMerchantTransactions(destination, merchantId);
@@ -40,6 +44,8 @@ public class MerchantExportController {
      * @Description This method is used to expose the endpoint to export all merchants' transactions.
      */
     @GetMapping("/merchants")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Export all merchants' transactions")
     public ResponseEntity<?> exportAllMerchantsTransactions(@RequestParam("destination") String outputPath){
         return merchantExportService.exportMerchantTransactions(outputPath);
     }

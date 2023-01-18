@@ -11,11 +11,12 @@ import org.springframework.stereotype.Component;
 public class YearProcessor implements ItemProcessor<Transaction, Transaction> {
 
     @Value("#{jobParameters['year']}")
-    private int year;
+    private String year;
 
     @Override
     public Transaction process(Transaction transaction) throws Exception {
-        if(transaction.getYear() == year) {
+        int iYear = Integer.parseInt(year);
+        if(transaction.getYear() == iYear) {
             return transaction;
         }
         return null;
