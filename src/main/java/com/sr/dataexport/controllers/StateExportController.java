@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * @ClassName StateExportController
+ * @Description This class is used to export the data based on the state.
+ */
 @RestController
 @Slf4j
 public class StateExportController {
@@ -20,6 +24,12 @@ public class StateExportController {
         this.stateExportService = stateExportService;
     }
 
+    /**
+     * @param state
+     * @param destination
+     * @return ResponseEntity<?> to indicate the status of the request.
+     * @Description This method is used to call the service to export a single state's transactions.
+     */
     @GetMapping("states/{state}")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Export a single state's transactions")
@@ -27,6 +37,11 @@ public class StateExportController {
         return stateExportService.launchSingleStateTransactionsJob(destination, state);
     }
 
+    /**
+     * @param destination
+     * @return ResponseEntity<?> to indicate the status of the request.
+     * @Description This method is used to call the service to export all states' transactions.
+     */
     @GetMapping("states")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Export all states' transactions")

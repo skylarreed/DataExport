@@ -11,6 +11,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+/**
+ * @author sr
+ *
+ * @Description service for exporting transactions by year.
+ */
 @Service
 public class YearExportService {
 
@@ -27,6 +32,12 @@ public class YearExportService {
         this.jobLauncher = jobLauncher;
     }
 
+    /**
+     * @param destination
+     * @param year
+     * @return ResponseEntity<?> to indicate the status of the request.
+     * @Description This method is used to export a single year's transactions.
+     */
     public ResponseEntity<?> launchSingleYearExportJob(String destination, String year) {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filePath", "src/main/resources/transactions.csv")
@@ -47,6 +58,11 @@ public class YearExportService {
         }
     }
 
+    /**
+     * @param destination
+     * @return ResponseEntity<?> to indicate the status of the request.
+     * @Description This method is used to export all years' transactions.
+     */
     public ResponseEntity<?> launchAllYearsExportJob(String destination) {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filePath", "src/main/resources/transactions.csv")

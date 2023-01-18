@@ -6,6 +6,10 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+/**
+ * @ClassName YearProcessor
+ * @Description This class is used to process the transaction based on the year.
+ */
 @Component
 @StepScope
 public class YearProcessor implements ItemProcessor<Transaction, Transaction> {

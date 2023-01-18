@@ -18,6 +18,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @ClassName YearClassifier
+ * @Description This class is used to classify the transaction based on the year.
+ */
 @Component
 @StepScope
 public class StateClassifier implements Classifier<Transaction, ItemWriter<? super Transaction>> {
@@ -34,7 +38,7 @@ public class StateClassifier implements Classifier<Transaction, ItemWriter<? sup
     /**
      * @param transaction
      * @return ItemWriter<? super Transaction>
-     * @Description This method classifies the transactions based on the user id. It then stores the transactions
+     * @Description This method classifies the transactions based on the state. It then stores the transactions
      * in a map with the file name as the key. If the file name is already present in the map, it returns the
      * corresponding writer. If the file name is not present in the map, it creates a new writer and adds it to the map.
      */

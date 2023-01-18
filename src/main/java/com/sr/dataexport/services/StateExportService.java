@@ -11,6 +11,11 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+/**
+ * @author sr
+ *
+ * @Description service for exporting transactions by State.
+ */
 @Service
 public class StateExportService {
     private final JobLauncher jobLauncher;
@@ -27,6 +32,12 @@ public class StateExportService {
         this.exportStateTransactionsJob = exportStateTransactionsJob;
     }
 
+    /**
+     * @param destination
+     * @param state
+     * @return ResponseEntity<?> to indicate the status of the request.
+     * @Description This method is used to export a single state's transactions.
+     */
     public ResponseEntity<?> launchSingleStateTransactionsJob(String destination, String state) {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filePath", "src/main/resources/transactions.csv")
@@ -47,6 +58,11 @@ public class StateExportService {
         }
     }
 
+    /**
+     * @param destination
+     * @return ResponseEntity<?> to indicate the status of the request.
+     * @Description This method is used to export all states' transactions.
+     */
     public ResponseEntity<?> launchExportStateTransactionsJob(String destination) {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filePath", "src/main/resources/transactions.csv")

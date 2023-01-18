@@ -10,6 +10,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+/**
+ * @author sr
+ * Service for exporting transactions by type.
+ */
 @Service
 public class TypeExportService {
     private final Job transactionTypeJob;
@@ -24,6 +28,11 @@ public class TypeExportService {
         this.jobLauncher = jobLauncher;
     }
 
+    /**
+     * Launches the job to export all transactions by type.
+     * @param destination The destination folder for the exported files.
+     * @return A response entity with the status of the job.
+     */
     public ResponseEntity<?> launchTransactionTypeJob(String destination) {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filePath", "src/main/resources/transactions.csv")
@@ -43,6 +52,12 @@ public class TypeExportService {
         }
     }
 
+    /**
+     * Launches the job to export transactions by type.
+     * @param destination The destination folder for the exported files.
+     * @param type The type of transactions to export.
+     * @return A response entity with the status of the job.
+     */
     public ResponseEntity<?> launchSingleTransactionTypeJob(String destination, String type) {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filePath", "src/main/resources/transactions.csv")

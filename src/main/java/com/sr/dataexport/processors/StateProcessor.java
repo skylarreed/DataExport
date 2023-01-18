@@ -6,6 +6,10 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+/**
+ * @ClassName StateProcessor
+ * @Description This class is used to process the transaction based on the state.
+ */
 @Component
 @StepScope
 public class StateProcessor implements ItemProcessor<Transaction, Transaction> {

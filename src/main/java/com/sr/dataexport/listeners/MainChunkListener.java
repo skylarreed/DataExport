@@ -4,6 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.ChunkListener;
 import org.springframework.batch.core.scope.context.ChunkContext;
 
+/**
+ * @ClassName MainChunkListener
+ * @Description This class is used to listen to the chunk events.
+ */
 @Slf4j(topic = "MainChunkListener")
 public class MainChunkListener implements ChunkListener {
     private int count = 0;
@@ -12,6 +16,10 @@ public class MainChunkListener implements ChunkListener {
     public void beforeChunk(ChunkContext chunkContext) {
     }
 
+    /**
+     * This method is used to log the chunk count, and log the current read and write in intervals.
+     * @param chunkContext
+     */
     @Override
     public void afterChunk(ChunkContext chunkContext) {
 

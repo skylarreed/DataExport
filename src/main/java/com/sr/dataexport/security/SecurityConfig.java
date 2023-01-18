@@ -21,6 +21,10 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * @ClassName SecurityConfig
+ * @Description This class is used to configure the security for the application.
+ */
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
@@ -29,6 +33,12 @@ public class SecurityConfig {
     public SecurityConfig(RsaKeyProperties rsaKeyProperties) {
         this.rsaKeys = rsaKeyProperties;
     }
+
+    /**
+     * @return SecurityFilterChain
+     * @Description This method overrides the default security configuration. It allows all requests to be made to the
+     * application.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -53,6 +63,10 @@ public class SecurityConfig {
                 .build();
     }
 
+    /**
+     * @return InMemoryUserDetailsManager
+     * @Description This method is used to create a user for the application.
+     */
     @Bean
     public InMemoryUserDetailsManager userDetailsManager() {
         return new InMemoryUserDetailsManager(
@@ -65,12 +79,20 @@ public class SecurityConfig {
     }
 
 
+    /**
+     * @return JwtDecoder
+     * @Description This method is used to decode the JWT token.
+     */
 
     @Bean
     public JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withPublicKey(rsaKeys.publicKey()).build();
     }
 
+    /**
+     * @return JwtEncoder
+     * @Description This method is used to encode the JWT token.
+     */
     @Bean
     public JwtEncoder jwtEncoder() {
         JWK jwk = new RSAKey.Builder(rsaKeys.publicKey())
