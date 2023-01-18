@@ -1,8 +1,6 @@
 package com.sr.dataexport.services;
 
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
@@ -42,14 +40,17 @@ public class MerchantExportService {
     public ResponseEntity<?> exportSingleMerchantTransactions(String destination, long merchantId) {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filePath", "src/main/resources/transactions.csv")
-                .addString("destination", destination + "/" + merchantId + "-transactions.xml")
+                .addString("destination", destination + "/merchant-" + merchantId + "-transactions.xml")
                 .addString("time", LocalDateTime.now().toString())
                 .addLong("merchantId", merchantId)
                 .toJobParameters();
 
         try {
-            jobLauncher.run(singleMerchantExportJob, jobParameters);
-            return ResponseEntity.ok().build();
+            JobExecution jobExecution =  jobLauncher.run(singleMerchantExportJob, jobParameters);
+            if (jobExecution.getStatus() == BatchStatus.FAILED) {
+                return ResponseEntity.status(500).body("Job failed to start. Contact the administrator.");
+            }
+            return ResponseEntity.status(202).body("Job started");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -68,8 +69,11 @@ public class MerchantExportService {
                 .toJobParameters();
 
         try {
-            jobLauncher.run(allMerchantExportJob, jobParameters);
-            return ResponseEntity.ok().build();
+            JobExecution jobExecution = jobLauncher.run(allMerchantExportJob, jobParameters);
+            if (jobExecution.getStatus() == BatchStatus.FAILED) {
+                return ResponseEntity.status(500).body("Job failed to start. Contact the administrator.");
+            }
+            return ResponseEntity.status(202).body("Job started");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

@@ -15,8 +15,12 @@ public class StateProcessor implements ItemProcessor<Transaction, Transaction> {
 
     @Override
     public Transaction process(Transaction transaction) throws Exception {
-        if(transaction.getMerchantState().equals(state)) {
-            return transaction;
+        try{
+            if(transaction.getMerchantState().equals(state)){
+                return transaction;
+            }
+        } catch (NullPointerException e){
+            return null;
         }
         return null;
     }
