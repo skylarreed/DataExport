@@ -60,6 +60,7 @@ public class StateClassifier implements Classifier<Transaction, ItemWriter<? sup
                     .rootTagName("StateTransactions")
                     .marshaller(marshaller)
                     .resource(new FileSystemResource(fileName))
+                    .transactional(false)
                     .build();
             SynchronizedItemStreamWriter<Transaction> synchronizedWriter = new SynchronizedItemStreamWriterBuilder<Transaction>()
                     .delegate(writer)

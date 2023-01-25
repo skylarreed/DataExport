@@ -3,6 +3,8 @@ package com.sr.dataexport.controllers;
 import com.sr.dataexport.services.MerchantExportService;
 import com.sr.dataexport.services.UserExportService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +36,12 @@ public class UserExportController {
     @GetMapping("/users/{userId}")
     @Operation(summary = "Export a single user's transactions")
     @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "202", description = "Accepted, Job started"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error, Job failed to start. Contact the administrator."),
+            @ApiResponse(responseCode = "400", description = "Bad Request"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     public ResponseEntity<?> exportSingleUserTransactions(@RequestParam("destination") String destination,
                                                           @PathVariable long userId){
         return userExportService.exportSingleUserTransactions(destination, userId);

@@ -60,6 +60,7 @@ public class YearClassifier implements Classifier<Transaction, ItemWriter<? supe
                     .rootTagName("YearTransactions")
                     .marshaller(marshaller)
                     .resource(new FileSystemResource(fileName))
+                    .transactional(false)
                     .build();
             SynchronizedItemStreamWriter<Transaction> synchronizedWriter = new SynchronizedItemStreamWriterBuilder<Transaction>()
                     .delegate(writer)

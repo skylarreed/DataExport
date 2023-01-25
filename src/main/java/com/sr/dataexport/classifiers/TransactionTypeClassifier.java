@@ -61,6 +61,7 @@ public class TransactionTypeClassifier implements Classifier<Transaction, ItemWr
                     .rootTagName("TransactionType")
                     .marshaller(marshaller)
                     .resource(new FileSystemResource(fileName))
+                    .transactional(false)
                     .build();
 
             SynchronizedItemStreamWriter<Transaction> synchronizedWriter = new SynchronizedItemStreamWriterBuilder<Transaction>()

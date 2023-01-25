@@ -2,6 +2,8 @@ package com.sr.dataexport.controllers;
 
 import com.sr.dataexport.services.TypeExportService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +33,12 @@ public class TypeExportController {
     @GetMapping("/transactionTypes")
     @Operation(summary = "Export all transaction types")
     @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "202", description = "Accepted, Job started"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error, Job failed to start. Contact the administrator."),
+            @ApiResponse(responseCode = "400", description = "Bad Request"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     public ResponseEntity<?> exportAllType(@RequestParam String destination) {
         return typeExportService.launchTransactionTypeJob(destination);
     }

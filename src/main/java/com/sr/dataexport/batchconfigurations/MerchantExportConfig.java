@@ -13,6 +13,7 @@ import org.springframework.batch.item.support.SynchronizedItemStreamWriter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
@@ -120,23 +121,14 @@ public class MerchantExportConfig {
      * @Description This method is used to create the merchant export job which exports all transactions for merchants.
      */
     @Bean("merchantExportJob")
+    @Primary
     public Job merchantExportJob() {
         return new JobBuilder("merchantExportJob", jobRepository)
                 .start(merchantExportStep())
                 .build();
     }
 
-    /**
-     * @return the single merchant export job.
-     * @Description This method is used to create the single merchant export job which exports all transactions for a
-     * single merchant.
-     */
-    @Bean("singleMerchantExportJob")
-    public Job singlMerchantExportJob(){
-        return new JobBuilder("singleMerchantExportJob", jobRepository)
-                .start(singleMerchantExportStep())
-                .build();
-    }
+
 
 
 

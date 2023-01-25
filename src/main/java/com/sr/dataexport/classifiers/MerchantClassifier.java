@@ -63,6 +63,7 @@ public class MerchantClassifier implements Classifier<Transaction, ItemWriter<? 
                     .rootTagName("MerchantTransactions")
                     .marshaller(marshaller)
                     .resource(new FileSystemResource(fileName))
+                    .transactional(false)
                     .build();
 
             SynchronizedItemStreamWriter<Transaction> synchronizedWriter = new SynchronizedItemStreamWriterBuilder<Transaction>()

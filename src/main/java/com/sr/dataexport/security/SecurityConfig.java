@@ -63,21 +63,6 @@ public class SecurityConfig {
                 .build();
     }
 
-    /**
-     * @return InMemoryUserDetailsManager
-     * @Description This method is used to create a user for the application.
-     */
-    @Bean
-    public InMemoryUserDetailsManager userDetailsManager() {
-        return new InMemoryUserDetailsManager(
-                User.withUsername("admin")
-                        .password("{noop}password")
-                        .roles("ADMIN")
-                        .authorities("read", "write")
-                        .build()
-        );
-    }
-
 
     /**
      * @return JwtDecoder
@@ -89,18 +74,6 @@ public class SecurityConfig {
         return NimbusJwtDecoder.withPublicKey(rsaKeys.publicKey()).build();
     }
 
-    /**
-     * @return JwtEncoder
-     * @Description This method is used to encode the JWT token.
-     */
-    @Bean
-    public JwtEncoder jwtEncoder() {
-        JWK jwk = new RSAKey.Builder(rsaKeys.publicKey())
-                .privateKey(rsaKeys.privateKey())
-                .build();
-        JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
-        return new NimbusJwtEncoder(jwks);
-    }
 
 
 }

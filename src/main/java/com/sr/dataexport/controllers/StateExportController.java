@@ -2,6 +2,8 @@ package com.sr.dataexport.controllers;
 
 import com.sr.dataexport.services.StateExportService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +35,12 @@ public class StateExportController {
     @GetMapping("states/{state}")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Export a single state's transactions")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "202", description = "Accepted, Job started"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error, Job failed to start. Contact the administrator."),
+            @ApiResponse(responseCode = "400", description = "Bad Request"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     public ResponseEntity<?> exportSingleStateTransactions(@RequestParam String destination, @PathVariable String state) {
         return stateExportService.launchSingleStateTransactionsJob(destination, state);
     }

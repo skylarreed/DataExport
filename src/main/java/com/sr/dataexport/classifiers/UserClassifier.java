@@ -70,6 +70,7 @@ public class UserClassifier implements Classifier<Transaction, ItemWriter<? supe
                     .rootTagName("UserTransactions")
                     .marshaller(marshaller)
                     .resource(new FileSystemResource(fileName))
+                    .transactional(false)
                     .build();
             SynchronizedItemStreamWriter<Transaction> synchronizedWriter = new SynchronizedItemStreamWriterBuilder<Transaction>()
                     .delegate(writer)

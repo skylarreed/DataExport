@@ -13,9 +13,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
         info = @Info(
-                title = "Batch Data Generator",
+                title = "Batch Data Export",
                 version = "1.0",
-                description = "Generate data for testing purposes"
+                description = "Export data based on transaction properties."
         )
 )
 @SecurityScheme(
