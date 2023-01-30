@@ -17,6 +17,7 @@ import org.springframework.batch.item.support.SynchronizedItemStreamWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -26,7 +27,7 @@ public class StateTransactionsConfig {
     private final PlatformTransactionManager transactionManager;
 
 
-    private final SimpleAsyncTaskExecutor taskExecutor;
+    private final ThreadPoolTaskExecutor taskExecutor;
 
 
     private final SynchronizedItemStreamReader<Transaction> allTransactionsReader;
@@ -57,7 +58,7 @@ public class StateTransactionsConfig {
     public StateTransactionsConfig(
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
-            SimpleAsyncTaskExecutor taskExecutor,
+            ThreadPoolTaskExecutor taskExecutor,
             SynchronizedItemStreamReader<Transaction> allTransactionsReader,
             StateProcessor stateProcessor, UserClassifier userClassifier, StateClassifier stateClassifier, SynchronizedItemStreamWriter<Transaction> staxWriter) {
 

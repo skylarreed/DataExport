@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.AsyncTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /**
@@ -35,7 +36,7 @@ public class TransactionTypeConfig {
     private final SynchronizedItemStreamWriter<Transaction> staxWriter;
 
     private final TransactionTypeProcessor transactionTypeProcessor;
-    private final AsyncTaskExecutor taskExecutor;
+    private final ThreadPoolTaskExecutor taskExecutor;
 
     /**
      * @param transactionTypeClassifier
@@ -50,7 +51,7 @@ public class TransactionTypeConfig {
     public TransactionTypeConfig(TransactionTypeClassifier transactionTypeClassifier,
                                  @Qualifier("allTransactionsReader") SynchronizedItemStreamReader<Transaction> transactionReader,
                                  JobRepository jobRepository, PlatformTransactionManager transactionManager,
-                                 SynchronizedItemStreamWriter<Transaction> staxWriter, TransactionTypeProcessor transactionTypeProcessor, AsyncTaskExecutor taskExecutor) {
+                                 SynchronizedItemStreamWriter<Transaction> staxWriter, TransactionTypeProcessor transactionTypeProcessor, ThreadPoolTaskExecutor taskExecutor) {
         this.transactionTypeClassifier = transactionTypeClassifier;
         this.transactionReader = transactionReader;
         this.jobRepository = jobRepository;

@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.AsyncTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /**
@@ -33,7 +34,7 @@ public class MerchantExportConfig {
 
     private final PlatformTransactionManager transactionManager;
 
-    private final AsyncTaskExecutor taskExecutor;
+    private final ThreadPoolTaskExecutor taskExecutor;
 
     private final MerchantProcessor merchantProcessor;
 
@@ -53,7 +54,7 @@ public class MerchantExportConfig {
      */
     public MerchantExportConfig(@Qualifier("allTransactionsReader") SynchronizedItemStreamReader<Transaction> transactionReader,
                                 JobRepository jobRepository, PlatformTransactionManager transactionManager,
-                                AsyncTaskExecutor taskExecutor, MerchantProcessor merchantProcessor,
+                                ThreadPoolTaskExecutor taskExecutor, MerchantProcessor merchantProcessor,
                                 MerchantClassifier merchantClassifier, SynchronizedItemStreamWriter<Transaction> staxWriter) {
         this.transactionReader = transactionReader;
         this.jobRepository = jobRepository;

@@ -17,6 +17,7 @@ import org.springframework.batch.item.support.SynchronizedItemStreamWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
@@ -26,7 +27,7 @@ public class YearTransactionsConfig {
     private final PlatformTransactionManager transactionManager;
 
 
-    private final SimpleAsyncTaskExecutor taskExecutor;
+    private final ThreadPoolTaskExecutor taskExecutor;
 
 
     private final SynchronizedItemStreamReader<Transaction> allTransactionsReader;
@@ -54,7 +55,7 @@ public class YearTransactionsConfig {
     public YearTransactionsConfig(
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
-            SimpleAsyncTaskExecutor taskExecutor,
+            ThreadPoolTaskExecutor taskExecutor,
             SynchronizedItemStreamReader<Transaction> allTransactionsReader,
             YearProcessor yearProcessor, YearClassifier yearClassifier, SynchronizedItemStreamWriter<Transaction> staxWriter) {
 

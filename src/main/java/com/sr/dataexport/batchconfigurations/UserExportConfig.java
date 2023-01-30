@@ -17,6 +17,7 @@ import org.springframework.batch.item.support.SynchronizedItemStreamWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /**
@@ -37,7 +38,7 @@ public class UserExportConfig {
     private final PlatformTransactionManager transactionManager;
 
 
-    private final SimpleAsyncTaskExecutor taskExecutor;
+    private final ThreadPoolTaskExecutor taskExecutor;
 
 
     private final SynchronizedItemStreamReader<Transaction> allTransactionsReader;
@@ -67,7 +68,7 @@ public class UserExportConfig {
     public UserExportConfig(
             JobRepository jobRepository,
             PlatformTransactionManager transactionManager,
-            SimpleAsyncTaskExecutor taskExecutor,
+            ThreadPoolTaskExecutor taskExecutor,
             SynchronizedItemStreamReader<Transaction> allTransactionsReader,
             UserProcessor userProcessor, UserClassifier userClassifier, SynchronizedItemStreamWriter<Transaction> staxWriter) {
 
@@ -115,23 +116,7 @@ public class UserExportConfig {
     }
 
 
-    /**
-     * @return Job Launcher.
-     *
-     * @Description This method is used to configure a job launcher that will run asynchronously.
-     */
 
-    @Bean(name = "asyncJobLauncher")
-    public JobLauncher jobLauncher() throws Exception {
-        SimpleAsyncTaskExecutor taskExecutor = new SimpleAsyncTaskExecutor();
-        taskExecutor.setConcurrencyLimit(8);
-
-        TaskExecutorJobLauncher jobLauncher = new TaskExecutorJobLauncher();
-        jobLauncher.setJobRepository(jobRepository);
-        jobLauncher.setTaskExecutor(taskExecutor);
-        jobLauncher.afterPropertiesSet();
-        return jobLauncher;
-    }
 
     /**
      * @return all users transactions step
