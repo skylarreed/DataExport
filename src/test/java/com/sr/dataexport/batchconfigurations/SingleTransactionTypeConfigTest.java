@@ -1,11 +1,10 @@
 package com.sr.dataexport.batchconfigurations;
 
-import com.sr.dataexport.classifiers.MerchantClassifier;
-import com.sr.dataexport.processors.MerchantProcessor;
+import com.sr.dataexport.processors.StateProcessor;
+import com.sr.dataexport.processors.TransactionTypeProcessor;
 import com.sr.dataexport.readers.TransactionReader;
 import com.sr.dataexport.writer.Stax;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -31,14 +29,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @EnableAutoConfiguration
 @SpringBatchTest
-@SpringJUnitConfig(classes = {MerchantExportConfig.class, BatchTaskExecutor.class,
-        TransactionReader.class, MerchantClassifier.class, Stax.class, MerchantProcessor.class})
+@SpringJUnitConfig(classes = {SingleTransactionTypeConfig.class, BatchTaskExecutor.class,
+        TransactionReader.class, Stax.class, TransactionTypeProcessor.class})
 @ActiveProfiles("test")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@Slf4j(topic = "MerchantExportConfigTest")
-class MerchantExportConfigTest {
-
-
+@Slf4j(topic = "SingleTransactionTypeConfigTest")
+class SingleTransactionTypeConfigTest {
     @Autowired
     JobLauncherTestUtils jobLauncherTestUtils;
 
@@ -58,10 +54,11 @@ class MerchantExportConfigTest {
         }
     }
     @Test
-    void testIfJobIsFailedAfterRunningExportAllMerchantsJob() throws Exception {
+    void testIfJobIsFailedAfterRunningExportSingleStateJob() throws Exception {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filePath", "src/test/resources/input/error_transactions.csv")
-                .addString("destination", "src/test/resources/output")
+                .addString("destination", "src/test/resources/output/type-transactions.xml")
+                .addString("transactionType", "Online Transaction")
                 .addString("time", LocalDateTime.now().toString())
                 .toJobParameters();
         try{
@@ -86,7 +83,8 @@ class MerchantExportConfigTest {
     void testIfJobDoesNotHaveValidPath() {
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filePath", "src/test/resources/input/this_file_does_not_exist.csv")
-                .addString("destination", "src/test/resources/output")
+                .addString("destination", "src/test/resources/output/type-transactions.xml")
+                .addString("transactionType", "Online Transaction")
                 .addString("time", LocalDateTime.now().toString())
                 .toJobParameters();
         JobExecution jobExecution;
@@ -108,7 +106,8 @@ class MerchantExportConfigTest {
     void testJobCompletesSuccessfullyWithValidInputAndOutput(){
         JobParameters jobParameters = new JobParametersBuilder()
                 .addString("filePath", "src/test/resources/input/reg_transactions.csv")
-                .addString("destination", "src/test/resources/output")
+                .addString("destination", "src/test/resources/output/type-transactions.xml")
+                .addString("transactionType", "Online Transaction")
                 .addString("time", LocalDateTime.now().toString())
                 .toJobParameters();
         JobExecution jobExecution;
@@ -122,7 +121,4 @@ class MerchantExportConfigTest {
             Assertions.fail();
         }
     }
-
-//    @Test
-//    void testIfJ
 }

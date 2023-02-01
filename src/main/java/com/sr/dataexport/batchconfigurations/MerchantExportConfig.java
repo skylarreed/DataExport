@@ -36,33 +36,27 @@ public class MerchantExportConfig {
 
     private final ThreadPoolTaskExecutor taskExecutor;
 
-    private final MerchantProcessor merchantProcessor;
 
     private final MerchantClassifier merchantClassifier;
 
-    private final SynchronizedItemStreamWriter<Transaction> staxWriter;
 
     /**
      * @param transactionReader
      * @param jobRepository
      * @param transactionManager
      * @param taskExecutor
-     * @param merchantProcessor
      * @param merchantClassifier
-     * @param staxWriter
      * @Description This constructor is used to inject the required dependencies.
      */
     public MerchantExportConfig(@Qualifier("allTransactionsReader") SynchronizedItemStreamReader<Transaction> transactionReader,
                                 JobRepository jobRepository, PlatformTransactionManager transactionManager,
-                                ThreadPoolTaskExecutor taskExecutor, MerchantProcessor merchantProcessor,
-                                MerchantClassifier merchantClassifier, SynchronizedItemStreamWriter<Transaction> staxWriter) {
+                                ThreadPoolTaskExecutor taskExecutor,
+                                MerchantClassifier merchantClassifier) {
         this.transactionReader = transactionReader;
         this.jobRepository = jobRepository;
         this.transactionManager = transactionManager;
         this.taskExecutor = taskExecutor;
-        this.merchantProcessor = merchantProcessor;
         this.merchantClassifier = merchantClassifier;
-        this.staxWriter = staxWriter;
     }
 
     /**
@@ -90,21 +84,7 @@ public class MerchantExportConfig {
                 .build();
     }
 
-    /**
-     * @return The job to export a single merchant.
-     * @Description This method is used to create the merchant export job.
-     */
-    @Bean
-    public Step singleMerchantExportStep(){
-        return new StepBuilder("singleMerchantExportStep", jobRepository)
-                .<Transaction, Transaction>chunk(60000, transactionManager)
-                .reader(transactionReader)
-                .processor(merchantProcessor)
-                .writer(staxWriter)
 
-                .taskExecutor(taskExecutor)
-                .build();
-    }
 
     /**
      * @return the classified writer.

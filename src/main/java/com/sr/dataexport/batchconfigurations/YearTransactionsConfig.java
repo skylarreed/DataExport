@@ -32,10 +32,8 @@ public class YearTransactionsConfig {
 
     private final SynchronizedItemStreamReader<Transaction> allTransactionsReader;
 
-    private final YearProcessor yearProcessor;
-
     private final YearClassifier yearClassifier;
-    private final SynchronizedItemStreamWriter<Transaction> staxWriter;
+
 
 
 
@@ -45,9 +43,7 @@ public class YearTransactionsConfig {
      * @param transactionManager
      * @param taskExecutor
      * @param allTransactionsReader
-     * @param yearProcessor
      * @param yearClassifier
-     * @param staxWriter
      * @Description This constructor is used to inject the required dependencies.
      */
 
@@ -57,48 +53,17 @@ public class YearTransactionsConfig {
             PlatformTransactionManager transactionManager,
             ThreadPoolTaskExecutor taskExecutor,
             SynchronizedItemStreamReader<Transaction> allTransactionsReader,
-            YearProcessor yearProcessor, YearClassifier yearClassifier, SynchronizedItemStreamWriter<Transaction> staxWriter) {
+            YearClassifier yearClassifier) {
 
 
         this.jobRepository = jobRepository;
         this.transactionManager = transactionManager;
         this.taskExecutor = taskExecutor;
         this.allTransactionsReader = allTransactionsReader;
-        this.yearProcessor = yearProcessor;
         this.yearClassifier = yearClassifier;
-
-        this.staxWriter = staxWriter;
     }
 
-    /**
-     * @return Year transactions step.
-     *
-     * @Description This method is used to configure the step to export a single Years transactions.
-     */
 
-    @Bean
-    public Step yearTransactionsStep(){
-        return new StepBuilder("yearTransactions", jobRepository)
-                .<Transaction, Transaction>chunk(60000, transactionManager)
-                .reader(allTransactionsReader)
-                .processor(yearProcessor)
-                .writer(staxWriter)
-                .listener(new MainChunkListener())
-                .taskExecutor(taskExecutor)
-                .build();
-    }
-
-    /**
-     * @return single Year transaction job.
-     *
-     * @Description this method is used to configure the job to export a single Year transactions.
-     */
-    @Bean(name = "singleYearTransactions")
-    public Job singleYearTransactionsJob(){
-        return new JobBuilder("singleYearTransactions", jobRepository)
-                .start(yearTransactionsStep())
-                .build();
-    }
 
 
 

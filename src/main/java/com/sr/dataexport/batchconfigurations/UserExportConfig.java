@@ -44,11 +44,8 @@ public class UserExportConfig {
     private final SynchronizedItemStreamReader<Transaction> allTransactionsReader;
 
 
-    private final UserProcessor userProcessor;
-
     private final UserClassifier userClassifier;
 
-    private final SynchronizedItemStreamWriter<Transaction> staxWriter;
 
 
 
@@ -58,9 +55,7 @@ public class UserExportConfig {
      * @param transactionManager
      * @param taskExecutor
      * @param allTransactionsReader
-     * @param userProcessor
      * @param userClassifier
-     * @param staxWriter
      * @Description This constructor is used to inject the required dependencies.
      */
 
@@ -70,50 +65,18 @@ public class UserExportConfig {
             PlatformTransactionManager transactionManager,
             ThreadPoolTaskExecutor taskExecutor,
             SynchronizedItemStreamReader<Transaction> allTransactionsReader,
-            UserProcessor userProcessor, UserClassifier userClassifier, SynchronizedItemStreamWriter<Transaction> staxWriter) {
+            UserClassifier userClassifier) {
 
 
         this.jobRepository = jobRepository;
         this.transactionManager = transactionManager;
         this.taskExecutor = taskExecutor;
-
         this.allTransactionsReader = allTransactionsReader;
 
-
-        this.userProcessor = userProcessor;
         this.userClassifier = userClassifier;
-        this.staxWriter = staxWriter;
     }
 
-    /**
-     * @return user transactions step.
-     *
-     * @Description This method is used to configure the step to export a single users transactions.
-     */
 
-    @Bean
-    public Step userTransactionsStep(){
-        return new StepBuilder("userTransactions", jobRepository)
-                .<Transaction, Transaction>chunk(60000, transactionManager)
-                .reader(allTransactionsReader)
-                .processor(userProcessor)
-                .writer(staxWriter)
-                .listener(new MainChunkListener())
-                .taskExecutor(taskExecutor)
-                .build();
-    }
-
-    /**
-     * @return single user transaction job.
-     *
-     * @Description this method is used to configure the job to export a single user transactions.
-     */
-    @Bean(name = "singleUserTransactions")
-    public Job singleUserTransactionsJob(){
-        return new JobBuilder("singleUserTransactions", jobRepository)
-                .start(userTransactionsStep())
-                .build();
-    }
 
 
 

@@ -33,9 +33,6 @@ public class TransactionTypeConfig {
 
     private final PlatformTransactionManager transactionManager;
 
-    private final SynchronizedItemStreamWriter<Transaction> staxWriter;
-
-    private final TransactionTypeProcessor transactionTypeProcessor;
     private final ThreadPoolTaskExecutor taskExecutor;
 
     /**
@@ -43,21 +40,17 @@ public class TransactionTypeConfig {
      * @param transactionReader
      * @param jobRepository
      * @param transactionManager
-     * @param staxWriter
-     * @param transactionTypeProcessor
      * @param taskExecutor
      * @Description This constructor is used to inject the required dependencies.
      */
     public TransactionTypeConfig(TransactionTypeClassifier transactionTypeClassifier,
                                  @Qualifier("allTransactionsReader") SynchronizedItemStreamReader<Transaction> transactionReader,
                                  JobRepository jobRepository, PlatformTransactionManager transactionManager,
-                                 SynchronizedItemStreamWriter<Transaction> staxWriter, TransactionTypeProcessor transactionTypeProcessor, ThreadPoolTaskExecutor taskExecutor) {
+                                 ThreadPoolTaskExecutor taskExecutor) {
         this.transactionTypeClassifier = transactionTypeClassifier;
         this.transactionReader = transactionReader;
         this.jobRepository = jobRepository;
         this.transactionManager = transactionManager;
-        this.staxWriter = staxWriter;
-        this.transactionTypeProcessor = transactionTypeProcessor;
         this.taskExecutor = taskExecutor;
     }
 
@@ -110,30 +103,4 @@ public class TransactionTypeConfig {
                 .build();
     }
 
-    /**
-     * @return Step
-     * @Description This method is used to create the step for a single transaction type.
-     */
-    @Bean
-    public Step singleTransactionType(){
-        return new StepBuilder("singleTransactionType", jobRepository)
-                .<Transaction, Transaction>chunk(60000, transactionManager)
-                .reader(transactionReader)
-                .processor(transactionTypeProcessor)
-                .writer(staxWriter)
-                .listener(new MainChunkListener())
-                .taskExecutor(taskExecutor)
-                .build();
-    }
-
-    /**
-     * @return Job
-     * @Description This method is used to create the job for a single transaction type.
-     */
-    @Bean(name = "singleTransactionTypeJob")
-    public Job singleTransactionTypeJob(){
-        return new JobBuilder("singleTransactionTypeJob", jobRepository)
-                .start(singleTransactionType())
-                .build();
-    }
 }
