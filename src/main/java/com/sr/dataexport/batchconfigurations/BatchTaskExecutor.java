@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 public class BatchTaskExecutor{
 
     /**
-     * @return SimpleAsyncTaskExecutor
+     * @return ThreadPoolTaskExecutor
      * @Description This method is used to configure the task executor for the batch jobs.
      */
     @Bean
@@ -25,8 +25,6 @@ public class BatchTaskExecutor{
 
         ThreadPoolTaskExecutor threadPoolTaskExecutor = new ThreadPoolTaskExecutor();
         threadPoolTaskExecutor.setCorePoolSize(corePoolSize);
-        threadPoolTaskExecutor.setMaxPoolSize(corePoolSize);
-        threadPoolTaskExecutor.setQueueCapacity(50);
         threadPoolTaskExecutor.setThreadNamePrefix("spring-batch-");
         threadPoolTaskExecutor.initialize();
         return threadPoolTaskExecutor;
