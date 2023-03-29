@@ -26,16 +26,10 @@ public class AsyncLauncher {
 
     @Bean(name = "asyncJobLauncher")
     public JobLauncher jobLauncher() throws Exception {
-        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-        taskExecutor.setCorePoolSize(1);
-        taskExecutor.setMaxPoolSize(2);
-        taskExecutor.setQueueCapacity(5);
-        taskExecutor.setThreadNamePrefix("spring-batch-");
-        taskExecutor.initialize();
         TaskExecutorJobLauncher jobLauncher = new TaskExecutorJobLauncher();
 
         jobLauncher.setJobRepository(jobRepository);
-        jobLauncher.setTaskExecutor(taskExecutor);
+        jobLauncher.setTaskExecutor(new SimpleAsyncTaskExecutor());
         jobLauncher.afterPropertiesSet();
         return jobLauncher;
     }

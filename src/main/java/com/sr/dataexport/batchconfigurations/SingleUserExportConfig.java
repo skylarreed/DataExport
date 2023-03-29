@@ -58,6 +58,7 @@ public class SingleUserExportConfig {
                 .reader(allTransactionsReader)
                 .processor(userProcessor)
                 .writer(staxWriter)
+                .taskExecutor(taskExecutor)
                 .listener(new MainChunkListener())
                 .build();
     }

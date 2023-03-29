@@ -34,3 +34,4 @@ build/
 
 transactions.csv
 output
+.env
